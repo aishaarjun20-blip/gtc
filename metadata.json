@@ -1,0 +1,6 @@
+{
+  "name": "Garg Trading Company",
+  "description": "Authorized dealer of MKG Inverter Welding Systems, Bosch, Esab, and other leading industrial welding and cutting brands in Kolkata.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
