@@ -61,7 +61,7 @@ export default function HomeView({
         {/* Background Image with dark overlay */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/src/assets/images/garg_trading_hero_1783508653096.jpg" 
+            src="/assets/images/garg_trading_hero_1783508653096.jpg" 
             alt="Garg Trading Workshop Showroom" 
             className="w-full h-full object-cover opacity-35 filter brightness-75 scale-105"
             referrerPolicy="no-referrer"
