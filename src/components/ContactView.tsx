@@ -24,6 +24,7 @@ export default function ContactView() {
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [whatsappUrl, setWhatsappUrl] = useState('');
 
   // Load sent inquiries from localStorage on mount
   useEffect(() => {
@@ -51,11 +52,23 @@ export default function ContactView() {
       timestamp: new Date().toISOString()
     };
 
+    // Formulate clean, styled WhatsApp text
+    const textMessage = `Hello Mohit Agarwal,\n\nI would like to submit an inquiry from the website.\n\n*Name:* ${newInquiry.name}\n*Phone:* ${newInquiry.phone}\n*Email:* ${newInquiry.email}\n*Subject:* ${newInquiry.subject}\n\n*Message:*\n${newInquiry.message}`;
+    const encodedText = encodeURIComponent(textMessage);
+    const waUrl = `https://wa.me/919836746409?text=${encodedText}`;
+    setWhatsappUrl(waUrl);
+
     const updated = [newInquiry, ...inquiries];
     setInquiries(updated);
     localStorage.setItem('garg_inquiries', JSON.stringify(updated));
 
-    // Simulated network submit callback
+    // Try automatic opening first
+    try {
+      window.open(waUrl, '_blank');
+    } catch (err) {
+      console.warn("Popup blocked, fallback provided on success page", err);
+    }
+
     setTimeout(() => {
       setSubmitting(false);
       setSuccess(true);
@@ -64,7 +77,7 @@ export default function ContactView() {
       setEmail('');
       setPhone('');
       setMessage('');
-    }, 1000);
+    }, 800);
   };
 
   return (
@@ -241,23 +254,38 @@ export default function ContactView() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-10 space-y-4"
+                className="text-center py-8 space-y-5"
               >
                 <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 mx-auto">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-display font-bold text-lg text-zinc-900">Message Sent!</h4>
+                  <h4 className="font-display font-bold text-lg text-zinc-900">Inquiry Prepared!</h4>
                   <p className="text-xs text-zinc-500 max-w-xs mx-auto">
-                    Your inquiry has been stored locally in the application log and logged under the active session profile. Our managing team will review the details.
+                    Your inquiry is logged locally and formatted for direct transmission to Mohit Agarwal on WhatsApp.
                   </p>
                 </div>
-                <button
-                  onClick={() => setSuccess(false)}
-                  className="bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs px-5 py-2.5 rounded-lg"
-                >
-                  Send Another Message
-                </button>
+
+                <div className="flex flex-col gap-2.5 max-w-xs mx-auto pt-2">
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-md shadow-emerald-500/15 cursor-pointer"
+                  >
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.413 9.863-9.83.001-2.624-1.018-5.09-2.868-6.942-1.851-1.852-4.314-2.871-6.931-2.872-5.438 0-9.863 4.414-9.866 9.833-.001 1.902.497 3.754 1.445 5.378l-.988 3.602 3.693-.972zm11.752-5.462c-.324-.162-1.92-.949-2.219-1.058-.299-.108-.517-.162-.734.162-.217.324-.838 1.058-1.026 1.274-.188.217-.377.243-.701.081-.324-.162-1.371-.505-2.611-1.612-.964-.86-1.614-1.923-1.802-2.247-.188-.324-.02-.5-.182-.661-.146-.146-.324-.378-.486-.568-.162-.189-.217-.324-.324-.54-.108-.217-.054-.405-.027-.568.027-.162.217-.513.324-.675.108-.162.145-.27.217-.405.072-.135.036-.253-.018-.36-.054-.108-.517-1.244-.709-1.703-.188-.451-.377-.39-.517-.397-.135-.007-.29-.007-.446-.007-.156 0-.41.059-.624.288-.214.23-.817.8-.817 1.95s.838 2.259.953 2.417c.115.158 1.65 2.518 3.999 3.53.559.241 1.002.385 1.343.493.563.18 1.077.154 1.482.094.453-.068 1.92-.786 2.19-1.505.27-.72.27-1.334.189-1.463-.081-.13-.298-.21-.622-.372z" />
+                    </svg>
+                    <span>Send to Mohit (WhatsApp)</span>
+                  </a>
+
+                  <button
+                    onClick={() => setSuccess(false)}
+                    className="border border-zinc-200 hover:bg-zinc-50 text-zinc-600 font-bold text-xs py-2.5 rounded-xl transition-colors cursor-pointer"
+                  >
+                    Send Another Message
+                  </button>
+                </div>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmitInquiry} className="space-y-4">

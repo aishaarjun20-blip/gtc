@@ -78,7 +78,7 @@ export default function Header({ currentPage, setCurrentPage }: HeaderProps) {
             className="flex items-center gap-3 cursor-pointer group"
             id="header-brand-logo"
           >
-            <div className="w-11 h-11 bg-orange-600 rounded-lg flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-orange-500/20 group-hover:bg-orange-500 transition-colors">
+            <div className="w-11 h-11 bg-orange-600 rounded-lg flex items-center justify-center text-white font-bold italic no-underline text-xl shadow-md shadow-orange-500/20 group-hover:bg-orange-500 transition-colors">
               G
             </div>
             <div>
