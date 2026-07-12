@@ -1,5 +1,13 @@
 import { Product } from './types';
 
+import mkgArcWelder from './assets/images/mkg_arc_welder_1783508613768.jpg';
+import mmaBlackWelder from './assets/images/mma_black_welder_1783509349750.jpg';
+import mmaYellowGrey from './assets/images/mma_yellow_grey_1783509367312.jpg';
+import mkgTigWelder from './assets/images/mkg_tig_welder_1783508626449.jpg';
+import mkgMigWelder from './assets/images/mkg_mig_welder_1783508640242.jpg';
+import migTrolleyFeeder from './assets/images/mig_trolley_feeder_1783509398181.jpg';
+import plasmaCutter from './assets/images/plasma_cutter_1783509383258.jpg';
+
 export const BRANDS = [
   { name: 'MKG', logoText: 'MKG', description: 'Premium Inverter Welding & Cutting Systems' },
   { name: 'BOSCH', logoText: 'BOSCH', description: 'World-Class Power & Hand Tools' },
@@ -22,7 +30,7 @@ export const PRODUCTS: Product[] = [
     model: 'ARC 200 IPH',
     category: 'mma',
     brand: 'MKG',
-    image: '/assets/images/mkg_arc_welder_1783508613768.jpg',
+    image: mkgArcWelder,
     tagline: 'High-Frequency Inverter Welding System',
     isFeatured: true,
     phase: '1 Phase',
@@ -52,7 +60,7 @@ export const PRODUCTS: Product[] = [
     model: 'MMA 300ST',
     category: 'mma',
     brand: 'MKG',
-    image: '/assets/images/mma_black_welder_1783509349750.jpg',
+    image: mmaBlackWelder,
     tagline: 'Wide Voltage Multi-Phase MMA Inverter',
     isFeatured: true,
     phase: '1/2 Phase',
@@ -87,7 +95,7 @@ export const PRODUCTS: Product[] = [
     model: 'MMA 400ST',
     category: 'mma',
     brand: 'MKG',
-    image: '/assets/images/mma_black_welder_1783509349750.jpg',
+    image: mmaBlackWelder,
     tagline: 'Heavy-Duty Wide Voltage MMA Inverter',
     isFeatured: false,
     phase: '1/2/3 Phase',
@@ -122,7 +130,7 @@ export const PRODUCTS: Product[] = [
     model: 'MMA-400I 3-PH',
     category: 'mma',
     brand: 'MKG',
-    image: '/assets/images/mma_yellow_grey_1783509367312.jpg',
+    image: mmaYellowGrey,
     tagline: 'Heavy Duty 3-Phase Site Welding Inverter',
     isFeatured: false,
     phase: '3 Phase',
@@ -157,7 +165,7 @@ export const PRODUCTS: Product[] = [
     model: 'MMA-400SiC',
     category: 'mma',
     brand: 'MKG',
-    image: '/assets/images/mma_black_welder_1783509349750.jpg',
+    image: mmaBlackWelder,
     tagline: 'Next-Gen Silicon Carbide (SiC) Multi-Process Welder',
     isFeatured: true,
     phase: '3 Phase',
@@ -193,7 +201,7 @@ export const PRODUCTS: Product[] = [
     model: 'TIG/ARC 200 IPH',
     category: 'tig',
     brand: 'MKG',
-    image: '/assets/images/mkg_arc_welder_1783508613768.jpg',
+    image: mkgArcWelder,
     tagline: 'Dual Purpose TIG & ARC Inverter Systems',
     isFeatured: false,
     phase: '1 Phase',
@@ -224,7 +232,7 @@ export const PRODUCTS: Product[] = [
     model: 'TIG 400 IJ',
     category: 'tig',
     brand: 'MKG',
-    image: '/assets/images/mkg_tig_welder_1783508626449.jpg',
+    image: mkgTigWelder,
     tagline: 'Industrial Heavy Duty TIG / MMA Combined Inverter',
     isFeatured: true,
     phase: '3 Phase',
@@ -253,7 +261,7 @@ export const PRODUCTS: Product[] = [
     model: 'MIG 250ST',
     category: 'mig',
     brand: 'MKG',
-    image: '/assets/images/mkg_mig_welder_1783508640242.jpg',
+    image: mkgMigWelder,
     tagline: 'Multi-Phase MIG / ARC Combined Smart Inverter',
     isFeatured: true,
     phase: '1/2/3 Phase',
@@ -288,7 +296,7 @@ export const PRODUCTS: Product[] = [
     model: 'MIG / ARC 400IJ',
     category: 'mig',
     brand: 'MKG',
-    image: '/assets/images/mig_trolley_feeder_1783509398181.jpg',
+    image: migTrolleyFeeder,
     tagline: '3-Phase Heavy Duty Trolley MIG System',
     isFeatured: false,
     phase: '3 Phase',
@@ -317,7 +325,7 @@ export const PRODUCTS: Product[] = [
     model: 'MIG-400SiC',
     category: 'mig',
     brand: 'MKG',
-    image: '/assets/images/mig_trolley_feeder_1783509398181.jpg',
+    image: migTrolleyFeeder,
     tagline: 'Silicon Carbide (SiC) High-Efficiency MIG System',
     isFeatured: false,
     phase: '3 Phase',
@@ -360,7 +368,7 @@ export const PRODUCTS: Product[] = [
     model: 'CUT 70E',
     category: 'plasma',
     brand: 'MKG',
-    image: '/assets/images/plasma_cutter_1783509383258.jpg',
+    image: plasmaCutter,
     tagline: 'High-Speed IGBT Plasma Cutting Inverter',
     isFeatured: false,
     phase: '3 Phase',
@@ -396,7 +404,7 @@ export const PRODUCTS: Product[] = [
     model: 'CUT-120 SiC',
     category: 'plasma',
     brand: 'MKG',
-    image: '/assets/images/plasma_cutter_1783509383258.jpg',
+    image: plasmaCutter,
     tagline: 'Heavy-Duty Silicon Carbide Cutter with Inbuilt Compressor',
     isFeatured: true,
     phase: '3 Phase',

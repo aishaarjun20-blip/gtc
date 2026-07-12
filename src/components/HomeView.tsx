@@ -5,6 +5,7 @@ import {
   ArrowRight, Phone, Mail, MapPin, Sparkles, Award, Star
 } from 'lucide-react';
 import { PRODUCTS, BRANDS } from '../data';
+import gargTradingHero from '../assets/images/garg_trading_hero_1783508653096.jpg';
 
 interface HomeViewProps {
   setCurrentPage: (page: string) => void;
@@ -61,7 +62,7 @@ export default function HomeView({
         {/* Background Image with dark overlay */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/assets/images/garg_trading_hero_1783508653096.jpg" 
+            src={gargTradingHero} 
             alt="Garg Trading Workshop Showroom" 
             className="w-full h-full object-cover opacity-35 filter brightness-75 scale-105"
             referrerPolicy="no-referrer"
