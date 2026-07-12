@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Search, SlidersHorizontal, Eye, FileText, CheckCircle2, 
-  X, MessageSquare, Info, ShieldAlert, ShoppingBag, Plus, Sparkles
+  X, MessageSquare, Info, ShieldAlert, ShoppingBag, Plus, Sparkles, ZoomIn
 } from 'lucide-react';
 import { PRODUCTS, BRANDS } from '../data';
 import { Product } from '../types';
@@ -14,6 +14,7 @@ interface ProductsViewProps {
   setOpenQuoteModal: (open: boolean) => void;
   quoteProductModel: string;
   setQuoteProductModel: (model: string) => void;
+  setLightboxImage: (image: { src: string, alt: string, title?: string } | null) => void;
 }
 
 export default function ProductsView({
@@ -22,7 +23,8 @@ export default function ProductsView({
   openQuoteModal,
   setOpenQuoteModal,
   quoteProductModel,
-  setQuoteProductModel
+  setQuoteProductModel,
+  setLightboxImage
 }: ProductsViewProps) {
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -245,13 +247,23 @@ export default function ProductsView({
                     >
                       <div>
                         {/* Image area */}
-                        <div className="relative aspect-video bg-zinc-50 border-b border-zinc-100 overflow-hidden">
+                        <div 
+                          className="relative aspect-video bg-zinc-50 border-b border-zinc-100 overflow-hidden cursor-zoom-in group/img"
+                          onClick={() => setLightboxImage({ src: p.image, alt: p.model, title: p.name })}
+                          title="Click to view full image"
+                        >
                           <img 
                             src={p.image} 
                             alt={p.name} 
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500"
                             referrerPolicy="no-referrer"
                           />
+                          {/* Hover overlay with glass effect and scale zoom icon */}
+                          <div className="absolute inset-0 bg-black/10 opacity-0 group-hover/img:opacity-100 transition-all duration-300 flex items-center justify-center">
+                            <div className="bg-white/95 text-zinc-900 p-2 rounded-full shadow-md transform translate-y-2 group-hover/img:translate-y-0 transition-all duration-300">
+                              <ZoomIn className="w-4 h-4 text-orange-600" />
+                            </div>
+                          </div>
                           <div className="absolute top-3 left-3 bg-zinc-950/80 text-zinc-300 text-[9px] font-mono uppercase font-bold tracking-wider px-2 py-0.5 rounded-sm backdrop-blur-xs">
                             {p.brand}
                           </div>
@@ -274,11 +286,26 @@ export default function ProductsView({
                           <div className="grid grid-cols-2 gap-1.5 py-2.5 px-3 bg-zinc-50 rounded-lg text-[10px] font-mono text-zinc-600">
                             <div>
                               <span className="text-zinc-400 block uppercase">Net Weight</span>
-                              <span className="font-bold text-zinc-800">{p.specs['Net Weight'] || p.specs['Net Weight (KG)'] || p.specs['Weight'] || 'N/A'}</span>
+                              <span className="font-bold text-zinc-800">
+                                {p.specs['Net Weight'] || 
+                                 p.specs['NET WEIGHT (KG)'] || 
+                                 p.specs['Weight'] || 
+                                 p.specs['Machine Weight (kg)'] || 
+                                 'N/A'}
+                              </span>
                             </div>
                             <div>
                               <span className="text-zinc-400 block uppercase">Out Current</span>
-                              <span className="font-bold text-zinc-800">{p.specs['Output Current Range (A)'] || p.specs['Output Current Range'] || p.specs['Welding Current Range'] || p.specs['Max Output Current'] || 'N/A'}</span>
+                              <span className="font-bold text-zinc-800">
+                                {p.specs['Output Current Range (A)'] || 
+                                 p.specs['OUTPUT CURRENT RANGE (A)'] || 
+                                 p.specs['Output Current Range'] || 
+                                 p.specs['Welding Current Range'] || 
+                                 p.specs['Max Output Current'] || 
+                                 p.specs['Gas Shielded Welding Current Range'] ||
+                                 p.specs['Plasma Cutting Current Range'] ||
+                                 'N/A'}
+                              </span>
                             </div>
                           </div>
                         </div>

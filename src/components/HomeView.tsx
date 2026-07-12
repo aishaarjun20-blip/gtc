@@ -2,23 +2,25 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { 
   Flame, ShieldAlert, Wrench, ArrowUpCircle, Settings, 
-  ArrowRight, Phone, Mail, MapPin, Sparkles, Award, Star
+  ArrowRight, Phone, Mail, MapPin, Sparkles, Award, Star, ZoomIn
 } from 'lucide-react';
 import { PRODUCTS, BRANDS } from '../data';
-import gargTradingHero from '../assets/images/garg_trading_hero_1783508653096.jpg';
+import gargTradingHero from '../assets/images/garg_trading_hero_1783838198658.jpg';
 
 interface HomeViewProps {
   setCurrentPage: (page: string) => void;
   setSelectedProductId: (id: string) => void;
   setOpenQuoteModal: (open: boolean) => void;
   setQuoteProductModel: (model: string) => void;
+  setLightboxImage: (image: { src: string, alt: string, title?: string } | null) => void;
 }
 
 export default function HomeView({ 
   setCurrentPage, 
   setSelectedProductId, 
   setOpenQuoteModal,
-  setQuoteProductModel 
+  setQuoteProductModel,
+  setLightboxImage
 }: HomeViewProps) {
   
   const featuredProducts = PRODUCTS.filter(p => p.isFeatured);
@@ -195,17 +197,27 @@ export default function HomeView({
                 className="bg-zinc-50 rounded-2xl overflow-hidden border border-zinc-100 hover:border-zinc-200 transition-all flex flex-col group shadow-xs"
               >
                 {/* Product Image Panel */}
-                <div className="relative aspect-square bg-zinc-100 overflow-hidden shrink-0">
+                <div 
+                  className="relative aspect-square bg-zinc-100 overflow-hidden shrink-0 cursor-zoom-in group/img"
+                  onClick={() => setLightboxImage({ src: prod.image, alt: prod.model, title: prod.name })}
+                  title="Click to view full image"
+                >
                   <img 
                     src={prod.image} 
                     alt={prod.name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-4 left-4 bg-orange-600 text-white text-[10px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 rounded-md shadow-sm">
+                  {/* Hover overlay with glass effect and scale zoom icon */}
+                  <div className="absolute inset-0 bg-black/10 opacity-0 group-hover/img:opacity-100 transition-all duration-300 flex items-center justify-center z-10">
+                    <div className="bg-white/95 text-zinc-900 p-2 rounded-full shadow-md transform translate-y-2 group-hover/img:translate-y-0 transition-all duration-300">
+                      <ZoomIn className="w-4 h-4 text-orange-600" />
+                    </div>
+                  </div>
+                  <div className="absolute top-4 left-4 bg-orange-600 text-white text-[10px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 rounded-md shadow-sm z-10">
                     {prod.phase}
                   </div>
-                  <div className="absolute top-4 right-4 bg-zinc-950/80 text-zinc-300 text-[10px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 rounded-md backdrop-blur-xs">
+                  <div className="absolute top-4 right-4 bg-zinc-950/80 text-zinc-300 text-[10px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 rounded-md backdrop-blur-xs z-10">
                     {prod.brand}
                   </div>
                 </div>

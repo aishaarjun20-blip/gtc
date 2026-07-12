@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { X, ZoomIn } from 'lucide-react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomeView from './components/HomeView';
@@ -13,6 +14,7 @@ export default function App() {
   const [openQuoteModal, setOpenQuoteModal] = useState<boolean>(false);
   const [quoteProductModel, setQuoteProductModel] = useState<string>('MMA 300ST');
   const [showWhatsAppPopup, setShowWhatsAppPopup] = useState<boolean>(false);
+  const [lightboxImage, setLightboxImage] = useState<{ src: string, alt: string, title?: string } | null>(null);
 
   // Handle setting page and ensuring scroll to top
   const handleSetPage = (page: string) => {
@@ -29,6 +31,7 @@ export default function App() {
             setSelectedProductId={setSelectedProductId}
             setOpenQuoteModal={setOpenQuoteModal}
             setQuoteProductModel={setQuoteProductModel}
+            setLightboxImage={setLightboxImage}
           />
         );
       case 'products':
@@ -40,6 +43,7 @@ export default function App() {
             setOpenQuoteModal={setOpenQuoteModal}
             quoteProductModel={quoteProductModel}
             setQuoteProductModel={setQuoteProductModel}
+            setLightboxImage={setLightboxImage}
           />
         );
       case 'about':
@@ -53,6 +57,7 @@ export default function App() {
             setSelectedProductId={setSelectedProductId}
             setOpenQuoteModal={setOpenQuoteModal}
             setQuoteProductModel={setQuoteProductModel}
+            setLightboxImage={setLightboxImage}
           />
         );
     }
@@ -165,6 +170,76 @@ export default function App() {
           </svg>
         </motion.button>
       </div>
+
+      {/* Global Product Image Lightbox Modal */}
+      <AnimatePresence>
+        {lightboxImage && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setLightboxImage(null)}
+              className="absolute inset-0 bg-black/95 backdrop-blur-md cursor-zoom-out"
+              id="lightbox-backdrop"
+            />
+
+            {/* Modal Container */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="relative max-w-5xl max-h-[90vh] z-10 flex flex-col items-center"
+              id="lightbox-content-box"
+            >
+              {/* Close Button top-right */}
+              <button
+                onClick={() => setLightboxImage(null)}
+                className="absolute -top-12 right-2 md:right-0 p-2.5 rounded-full bg-zinc-900/80 hover:bg-orange-600 text-white transition-colors cursor-pointer shadow-md border border-zinc-800 z-20 flex items-center justify-center"
+                title="Close Lightbox"
+                id="lightbox-close-btn"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Image Frame */}
+              <div className="relative overflow-hidden rounded-xl bg-zinc-900 border border-zinc-800 shadow-2xl flex items-center justify-center max-w-full max-h-[80vh]">
+                <img
+                  src={lightboxImage.src}
+                  alt={lightboxImage.alt}
+                  className="max-w-full max-h-[80vh] object-contain select-none pointer-events-none"
+                  referrerPolicy="no-referrer"
+                />
+                
+                {/* Visual Accent Corner Icon */}
+                <div className="absolute bottom-4 right-4 bg-black/60 text-zinc-400 text-[10px] font-mono px-2 py-1 rounded-md backdrop-blur-xs flex items-center gap-1 border border-zinc-800/80">
+                  <ZoomIn className="w-3.5 h-3.5 text-orange-500" />
+                  <span>High-Res Photo</span>
+                </div>
+              </div>
+
+              {/* Title Overlay Info (captions) */}
+              {lightboxImage.title && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-center mt-4 max-w-lg"
+                >
+                  <h4 className="text-white font-display font-black text-sm md:text-base tracking-tight">
+                    {lightboxImage.title}
+                  </h4>
+                  <p className="text-zinc-400 text-xs font-mono mt-0.5">
+                    {lightboxImage.alt}
+                  </p>
+                </motion.div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

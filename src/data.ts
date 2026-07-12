@@ -1,12 +1,16 @@
 import { Product } from './types';
 
-import mkgArcWelder from './assets/images/mkg_arc_welder_1783508613768.jpg';
-import mmaBlackWelder from './assets/images/mma_black_welder_1783509349750.jpg';
-import mmaYellowGrey from './assets/images/mma_yellow_grey_1783509367312.jpg';
-import mkgTigWelder from './assets/images/mkg_tig_welder_1783508626449.jpg';
-import mkgMigWelder from './assets/images/mkg_mig_welder_1783508640242.jpg';
-import migTrolleyFeeder from './assets/images/mig_trolley_feeder_1783509398181.jpg';
-import plasmaCutter from './assets/images/plasma_cutter_1783509383258.jpg';
+import mkgArcWelder from './assets/images/mkg_arc_welder_1783838078581.jpg';
+import mmaBlackWelder from './assets/images/mma_black_welder_1783838095890.jpg';
+import mmaYellowGrey from './assets/images/regenerated_image_1783840847264.png';
+import mma400i3ph from './assets/images/regenerated_image_1783841197583.jpg';
+import mkgTigWelder from './assets/images/mkg_tig_welder_1783838129019.jpg';
+import mkgMigWelder from './assets/images/mkg_mig_welder_1783838145697.jpg';
+import migTrolleyFeeder from './assets/images/mig_trolley_feeder_1783838166873.jpg';
+import plasmaCutter from './assets/images/plasma_cutter_1783838182629.jpg';
+import mmaSicWelder from './assets/images/mkg_mma_sic_1783838608406.jpg';
+import migSicWelder from './assets/images/mkg_mig_sic_1783838626394.jpg';
+import cutSicCutter from './assets/images/mkg_cut_sic_1783838643145.jpg';
 
 export const BRANDS = [
   { name: 'MKG', logoText: 'MKG', description: 'Premium Inverter Welding & Cutting Systems' },
@@ -27,7 +31,7 @@ export const PRODUCTS: Product[] = [
   {
     id: 'mkg-arc-200',
     name: 'ARC 200 IPH MOSFET',
-    model: 'ARC 200 IPH',
+    model: 'ARC 200 IPH MOSFET',
     category: 'mma',
     brand: 'MKG',
     image: mkgArcWelder,
@@ -41,17 +45,17 @@ export const PRODUCTS: Product[] = [
       'Excellent weld quality with minimal spatter'
     ],
     specs: {
-      'Input Voltage (V)': 'AC230V ± 15%',
-      'Frequency (Hz)': '50/60',
-      'Input Power Capacity (KVA)': '6',
-      'Rated Input Current (A)': '43.6',
-      'Output Current Range (A)': '30 - 200',
-      'No-Load Voltage (V)': '65',
-      'Power Factor': '0.73',
-      'Net Weight (KG)': '8',
-      'Dimension (L*W*H) (mm)': '445 x 265 x 345',
-      'Plate Thickness (mm)': '2.0 to 6.0',
-      'Diameter of Rod (mm)': '2.0 to 3.2'
+      'INPUT VOLTAGE (V)': 'AC230V ± 15%',
+      'FREQUENCY (HZ)': '50/60',
+      'INPUT POWER CAPACITY (KVA)': '6',
+      'RATED INPUT CURRENT (A)': '43.6',
+      'OUTPUT CURRENT RANGE (A)': '30-200',
+      'NO-LOAD VOLTAGE (V)': '65',
+      'POWER FACTOR': '0.73',
+      'NET WEIGHT (KG)': '8',
+      'DIMENSION (L*W*H) (mm)': '445 x 265 x 345',
+      'PLATE THICKNESS (MM)': '2.0 TO 6.0',
+      'DIAMETER OF ROD (MM)': '2.0 To 3.2'
     }
   },
   {
@@ -70,23 +74,24 @@ export const PRODUCTS: Product[] = [
       'Anti Stick function prevents electrode sticking during welding',
       'Works in any input voltage from 60V to 560V',
       'Generator compatible - ideal for field and remote locations',
-      'Rod holder cable length supported up to 30 meters'
+      'Rod holder cable length supported up to 30 meters',
+      'Advanced IGBT Technology, increased duty cycle, more reliable under hot, humid, dusty working environments'
     ],
     specs: {
-      'Input Voltage': '1PH-2PH AC80V - 560V',
-      'Frequency': '50/60 Hz',
-      'Rated Input Current': '6.20 / 16.6 KVA',
-      'No-Load Voltage': '75/220V, 65/380V',
-      'Output Current Range': '10 - 300 A',
+      'Input Voltage': '1PH-2PH AC60V-560V',
+      'Frequency': '50/60',
+      'Rated Input Current': '6.20/16.6KVA',
+      'No-load Voltage': '75/220V,65/380V',
+      'Output Current Range': '10-300',
       'Rated Output Voltage': '24V',
-      'Duty Cycle (%)': '60%',
-      'No-Load Loss (W)': '24',
-      'Efficiency (%)': '80%',
+      'Duty Cycle': '60',
+      'No-load Loss': '24',
+      'Efficiency': '80',
       'Power Factor': '0.73',
       'Insulation Grade': 'H',
-      'Housing Protection': 'IP21',
-      'Net Weight': '8 KG',
-      'Dimension': '383 x 190 x 330 mm'
+      'Housing Protection Grade': 'IP21',
+      'Net Weight': '8KG',
+      'Dimension': '383X190X330mm'
     }
   },
   {
@@ -95,7 +100,7 @@ export const PRODUCTS: Product[] = [
     model: 'MMA 400ST',
     category: 'mma',
     brand: 'MKG',
-    image: mmaBlackWelder,
+    image: mmaYellowGrey,
     tagline: 'Heavy-Duty Wide Voltage MMA Inverter',
     isFeatured: false,
     phase: '1/2/3 Phase',
@@ -105,58 +110,61 @@ export const PRODUCTS: Product[] = [
       'Adjustable Arc Force for depth control',
       'Robust Anti-Stick control mechanism',
       'Rod holder cables supported up to 50 meters',
-      'Suitable for harsh, dusty, hot, and humid working environments'
+      'Suitable for harsh, dusty, hot, and humid working environments',
+      'Advanced IGBT Technology, increased duty cycle'
     ],
     specs: {
-      'Input Voltage': '1PH-2PH-3PH AC60V - 560V',
-      'Frequency': '50/60 Hz',
-      'Rated Input Current': '7.80 / 14 KVA',
-      'No-Load Voltage': '75/220V, 65/380V',
-      'Output Current Range': '10 - 400 A',
+      'Input Voltage': '1PH-2PH-3PH AC60V-560V',
+      'Frequency': '50/60',
+      'Rated Input Current': '7.80/14KVA',
+      'No-load Voltage': '75/220V , 65/380V',
+      'Output Current Range': '10-400',
       'Rated Output Voltage': '24V',
-      'Duty Cycle (%)': '60%',
-      'No-Load Loss (W)': '30',
-      'Efficiency (%)': '80%',
+      'Duty Cycle': '60',
+      'No-load Loss': '30',
+      'Efficiency': '80',
       'Power Factor': '0.73',
       'Insulation Grade': 'F',
-      'Housing Protection': 'IP21',
-      'Net Weight': '16 KG',
-      'Dimension': '520 x 240 x 390 mm'
+      'Housing Protection Grade': 'IP21',
+      'Net Weight': '16KG',
+      'Dimension': '520X240X390mm'
     }
   },
   {
     id: 'mkg-mma-400i-3ph',
     name: 'MMA-400I -3PH',
-    model: 'MMA-400I 3-PH',
+    model: 'MMA-400I -3PH',
     category: 'mma',
     brand: 'MKG',
-    image: mmaYellowGrey,
+    image: mma400i3ph,
     tagline: 'Heavy Duty 3-Phase Site Welding Inverter',
     isFeatured: false,
     phase: '3 Phase',
     features: [
-      'Designed for extreme on-site site operations',
+      'Designed for extreme on-site operations',
       'Long distance welding cable support (up to 50m)',
       'Advanced Dual IGBT Module technology',
       'Dual digital LED display for current & voltage preset',
       'Remote voltage and current control options',
-      'Inbuilt VRD & Active Anti-Stick safety loops'
+      'Inbuilt VRD & Active Anti-Stick safety loops',
+      'Works in 3 phase power input'
     ],
     specs: {
+      'Parameter/Model': 'ARC-400I -3PH',
       'Input Voltage': '3PH - AC415V',
-      'Frequency': '50/60 Hz',
-      'Rated Input Current': '22 A',
-      'No-Load Voltage': '65 V',
-      'Output Current Range': '30 - 400 A',
-      'VRD & VRD Voltage': 'YES & 20VDC',
-      'Duty Cycle (%)': '60%',
-      'No-Load Loss (W)': '40',
-      'Efficiency (%)': '80%',
+      'Frequency': '50/60',
+      'Rated Input Current': '22',
+      'No-load Voltage': '65',
+      'Output Current Range': '30-400',
+      'VRD & VRD VOLTAGE': 'YES & 20VDC',
+      'Duty Cycle': '60',
+      'No-load Loss': '40',
+      'Efficiency': '80',
       'Power Factor': '0.93',
       'Insulation Grade': 'F',
-      'Housing Protection': 'IP21',
+      'Housing Protection Grade': 'IP21',
       'Net Weight': '16 KGS',
-      'Dimension': '633 x 353 x 533 mm'
+      'Dimension': '633X353X533'
     }
   },
   {
@@ -165,12 +173,12 @@ export const PRODUCTS: Product[] = [
     model: 'MMA-400SiC',
     category: 'mma',
     brand: 'MKG',
-    image: mmaBlackWelder,
+    image: mmaSicWelder,
     tagline: 'Next-Gen Silicon Carbide (SiC) Multi-Process Welder',
     isFeatured: true,
     phase: '3 Phase',
     features: [
-      'Advanced Silicon Carbide (SiC) semiconductor technology',
+      'Advanced Silicon Carbide (SiC) semiconductor technology for higher efficiency and lower losses',
       'Multi-Process supporting MMA, TIG, and MIG/MAG welding',
       'Supports high-duty continuous welding at 100% duty cycle (330A)',
       'Intelligent protection for Overheat, Overcurrent, and Undervoltage',
@@ -178,27 +186,35 @@ export const PRODUCTS: Product[] = [
       'Extremely efficient cooling system (Air / Water / Self)'
     ],
     specs: {
-      'Rated Input Voltage': '3 Phase; 380V ± 10%',
       'Power Frequency': '50 Hz',
+      'Rated Input Voltage': '3 Phase; 380V ± 10%',
       'Rated Input Capacity': '13.5 KVA',
       'Rated Input Current': '36 A',
       'Output No-load Voltage': '75 V',
-      'Welding Current Range': '0 - 400 A',
+      'Welding Current Range': '0-400 A',
       'Rated Duty Cycle (40°C)': '100%',
-      'Output Current (100% DC)': '330 A',
-      'Efficiency (%)': '85%',
-      'Power Factor': '0.8',
-      'Insulation Class': 'H',
-      'Enclosure Protection': 'IP21S',
-      'Net Weight': '11.3 KG',
-      'Gross Weight': '12.65 KG',
-      'Dimension (L*W*H)': '467 x 219 x 366 mm'
+      'Output Current at 100% Duty Cycle': '330 A',
+      'Efficiency': '85%',
+      'Power Factor': 'Cosφ 0.8',
+      'Technology': 'Silicon Carbide (SiC) Technology',
+      'Welding Process': 'MMA, TIG, MIG/MAG',
+      'Applicable Welding Rods': 'Φ2.5 - Φ4.0 mm',
+      'Quick Connector': '50-70',
+      'Protection': 'Overheat, Overcurrent, Undervoltage, Gas Shortage, Other',
+      'Cooling Method': 'Air Cooling, Water Cooling, Self Cooling',
+      'Handle': 'Yes',
+      'VRD': 'Yes',
+      'Insulation Class': 'Grade H',
+      'Enclosure Protection Level': 'IP21S',
+      'Net Weight': '11.3 kg',
+      'Gross Weight': '12.65 kg',
+      'Dimensions (LxWxH)': '467 * 219 * 366 mm'
     }
   },
   {
     id: 'mkg-tig-200',
     name: 'TIG / ARC 200 IPH MOSFET',
-    model: 'TIG/ARC 200 IPH',
+    model: 'TIG / ARC 200 IPH MOSFET',
     category: 'tig',
     brand: 'MKG',
     image: mkgArcWelder,
@@ -212,18 +228,18 @@ export const PRODUCTS: Product[] = [
       'Perfect for sheet metal, stainless steel, and fine alloy fabrication'
     ],
     specs: {
-      'Input Voltage (V)': 'AC230V ± 15%',
-      'Frequency (Hz)': '50/60',
-      'Input Power (KVA) MMA/TIG': '6 / 6',
-      'No-Load Voltage (V)': '56',
-      'Rated Input Current MMA/TIG': '32 / 24 A',
-      'Output Current Range (A)': '10 - 200',
-      'Arc Ignition Type': 'HF (High Frequency)',
-      'Power Factor': '0.73',
-      'Net Weight (KG)': '9',
-      'Dimension (L*W*H) (mm)': '371 x 153 x 232',
-      'Plate Thickness Range': '0.3 - 5.0 mm (TIG) / 1.0 - 6.0 mm (MMA)',
-      'Diameter of Rod (mm)': '2.0 to 3.2'
+      'INPUT VOLTAGE (V)': 'AC230V ± 15%',
+      'FREQUENCY (HZ)': '50/60',
+      'INPUT POWER CAPACITY (KVA) MMA/TIG': '6/6',
+      'NO-LOAD VOLTAGE (V)': '56',
+      'RATED INPUT CURRENT (A)': '32/24',
+      'OUTPUT CURRENT RANGE (A)': '10-200',
+      'ARC IGNITION': 'HF',
+      'POWER FACTOR': '0.73',
+      'NET WEIGHT (KG)': '9',
+      'DIMENSION (L*W*H) (mm)': '371 x 153 x 232',
+      'PLATE THICKNESS (MM)': '0.3-5.0 / 1.0-6.0',
+      'DIAMETER OF ROD (MM) Arc': '2.0 TO 3.2'
     }
   },
   {
@@ -244,16 +260,21 @@ export const PRODUCTS: Product[] = [
       'Full digital interface displays clear voltage and current parameters'
     ],
     specs: {
-      'Input Voltage': '3 Phase; AC380V ± 10%',
-      'Input Power (KVA)': 'TIG: 12.88 / MMA: 17.84',
-      'Max Output Current': 'TIG: 400A / MMA: 400A',
-      'No-load Voltage (V)': '76V (25V with active VRD)',
+      'Input Voltage': '3ph~AC380V±10%',
+      'Input Power (KVA)': 'TIG:12.88/MMA:17.84',
+      'Max Output Current': 'TIG: 400A /MMA: 400A',
+      'No-load Voltage (V)': '76V (25V, VRD)',
       'Hot Start': 'YES',
-      'Protection & Insulation': 'IP21 & F',
-      'Dimension (mm)': '418 x 229 x 362 mm',
-      'Weight': '20 KG'
+      'Protection & Insulation': 'IP 21 & F',
+      'Dimension (mm)': '418*229*362mm',
+      'Weight': '20Kg'
     },
-    accessories: ['High-Duty TIG Torch', 'Heavy Duty Earth Cable Set', 'Standard Cable Connection Sockets']
+    accessories: [
+      'WELDING MACHINE',
+      'TIG TORCH',
+      'EARTH CABLE SET',
+      'CABLE SOCKET'
+    ]
   },
   {
     id: 'mkg-mig-250st',
@@ -273,21 +294,21 @@ export const PRODUCTS: Product[] = [
       'Equipped with constant current / constant voltage (CC/CV) outputs'
     ],
     specs: {
-      'Input Voltage': 'AC180V ~ 410V (1/2/3 Phase Auto-Combined)',
-      'Input Power (KVA)': 'MIG: 8.21 / MMA: 9.29',
-      'Max Output Current': 'MIG: 250A / MMA: 250A',
+      'Input Voltage': 'AC180V~410V 1/2/3PH',
+      'Input Power (KVA)': 'MIG:8.21/MMA:9.29',
+      'Max Output Current': 'MIG: 250A /MMA: 250A',
       'No-load Voltage (V)': '64',
       'Hot Start': 'YES',
-      'Protection & Insulation': 'IP23S & H',
-      'Machine Package Size (mm)': '480 x 230 x 420',
-      'Machine Weight (kg)': '17 KG'
+      'Protection & Insulation': 'IP 23S & H',
+      'Machine Package Size (mm)': '480x230x420',
+      'Machine Weight (kg)': '17kg'
     },
     accessories: [
-      '250 Amps High Stability Power Source',
-      'Premium MIG Torch',
-      'Integrated Wire Feeder Unit',
-      'Earth Cable Set & Clamps',
-      'CO2 Regulator with Flowmeter & Built-in Heater'
+      '250 AMPS POWER SOURCE',
+      'MIG TORCH',
+      'WIRE FEEDER',
+      'EARTH CABLE SET',
+      'C02 REGULATOR WITH FLOWMETER & HEATER'
     ]
   },
   {
@@ -308,15 +329,15 @@ export const PRODUCTS: Product[] = [
       'Heavy steel trolley mounting for easy shop movement'
     ],
     specs: {
-      'Input Voltage (V)': 'AC415V ± 15%',
-      'Input Power Capacity (KVA)': '14',
-      'Output Voltage Adjustment': '31.5 V',
-      'Output Current Range (A)': '50 - 400',
-      'Wire Feeder Speed (m/min)': '3 - 24',
-      'Power Factor': '0.93',
-      'Net Weight (KG)': '36',
-      'Dimension (inch)': '21.5 x 11 x 21.5',
-      'MIG Wire Diameter (mm)': '0.8 - 1.2'
+      'INPUT VOLTAGE (V)': 'AC415V±15%',
+      'INPUT POWER CAPACITY (KVA)': '14',
+      'OUTPUT VOLTAGE ADJUSTMENT(V)': '31.5',
+      'OUTPUT CURRENT RANGE (A)': '50 - 400',
+      'WIRE FEEDER SPEED (MTR/MIN)': '3 - 24',
+      'POWER FACTOR': '0.93',
+      'NET WEIGHT (KG)': '36',
+      'DIMENSION (INCH)': '21.5 x 11 x 21.5',
+      'MIG WIRE DIAMETER (MM)': '0.8 - 1.2'
     }
   },
   {
@@ -325,7 +346,7 @@ export const PRODUCTS: Product[] = [
     model: 'MIG-400SiC',
     category: 'mig',
     brand: 'MKG',
-    image: migTrolleyFeeder,
+    image: migSicWelder,
     tagline: 'Silicon Carbide (SiC) High-Efficiency MIG System',
     isFeatured: false,
     phase: '3 Phase',
@@ -337,29 +358,37 @@ export const PRODUCTS: Product[] = [
       'Triple cooling system controls (Air, Water, or Self-Cooling)'
     ],
     specs: {
-      'Rated Input Voltage': '3 Phase; 380V ± 10%',
       'Power Frequency': '50 Hz',
-      'Permissible Voltage Range': '320 ~ 415 V',
+      'Rated Input Voltage': '3 Phase; 380V ± 10%',
+      'Permissible Input Voltage Range': '320~415 V',
       'Rated Input Capacity': '16.5 KVA',
       'Rated Input Current': '25 A',
       'Output No-load Voltage': '68.5 V',
-      'Gas Shielded Current Range': '0 - 400 A',
-      'Manual Welding Current Range': '0 - 400 A',
+      'Gas Shielded Welding Current Range': '0-400 A',
+      'Manual Welding Current Range': '0-400 A',
       'Rated Duty Cycle (40°C)': '100%',
-      'Output Current (100% DC)': '350 A',
-      'Efficiency (%)': '85%',
-      'Power Factor': '0.8',
-      'Insulation Class': 'H',
-      'Enclosure Protection': 'IP21S',
-      'Net Weight': '15.3 KG',
-      'Gross Weight': '18 KG',
-      'Dimension (mm)': '467 x 219 x 366'
+      'Output Current at 100% Duty Cycle': '350 A',
+      'Efficiency': '85%',
+      'Power Factor': 'Cosφ 0.8',
+      'Technology': 'Silicon Carbide Technology',
+      'Welding Process': 'MMA, TIG, MIG/MAG',
+      'Applicable Welding Wire': '0.8--1.2 mm',
+      'Quick Connector': 'DK50B-300A',
+      'Protection': 'Overheat, Overcurrent, Undervoltage, Gas Shortage, Other',
+      'Cooling Method': 'Air Cooling, Water Cooling, Self Cooling',
+      'Handle': 'Yes',
+      'Wire Feeder': 'External',
+      'Insulation Class': 'Grade H',
+      'Enclosure Protection Level': 'IP21S',
+      'Net Weight': '15.3 kg',
+      'Gross Weight': '18 kg',
+      'Dimensions (LxWxH)': '467*219*366 mm'
     },
     accessories: [
-      'Wire Feeder with 5-meter heavy connection cable',
-      'Professional MIG Torch KR-350 (3 meters)',
-      'Earthing Clamp with 2.5-meter copper cable',
-      'CO2 Regulator with pre-heater set'
+      'Wire Feeder with 5meter connection cable',
+      'MIG Torch KR-350 3meter',
+      'Earthing Clamp with cable 2.5meter',
+      'CO2 Regulator with pre heater'
     ]
   },
   {
@@ -380,31 +409,31 @@ export const PRODUCTS: Product[] = [
       'Offers pristine dross-free clean cutting up to 15mm'
     ],
     specs: {
-      'Input Voltage': 'AC380V ± 10% 3-Phase',
+      'Input Voltage': 'AC380V±10% 3PH',
       'Input Power (KVA)': '9.37',
       'Max Output Current': '70 A',
       'No-load Voltage (V)': '330',
       'Hot Start': 'YES',
-      'Protection & Insulation': 'IP21 & F',
-      'Clean Cut Capacity': '15 mm',
-      'Max Severance Cut': '25 mm',
-      'Machine Package Size (mm)': '480 x 230 x 420',
-      'Machine Weight': '21 KG'
+      'Protection & Insulation': 'IP 21 & F',
+      'Clean Cut': '15mm',
+      'Max Cut': '25mm',
+      'Machine Package Size (mm)': '480x230x420',
+      'Machine Weight (kg)': '21kg'
     },
     accessories: [
-      '70A Plasma Power Source',
-      'P80 Plasma Torch with nozzles & electrodes',
-      'Gas Pressure Meter & Filter kit',
-      'Earth Cable Set'
+      'POWER SOURCE',
+      'CUTTING TORCH WITH NOZZLE & ELECTRODE',
+      'PRESSURE METER',
+      'EARTH CABLE SET'
     ]
   },
   {
     id: 'mkg-cut-120-sic',
-    name: 'CUT-120 SiC 3-PH',
+    name: 'CUT-120 SiC 3-PH Inbuilt',
     model: 'CUT-120 SiC',
     category: 'plasma',
     brand: 'MKG',
-    image: plasmaCutter,
+    image: cutSicCutter,
     tagline: 'Heavy-Duty Silicon Carbide Cutter with Inbuilt Compressor',
     isFeatured: true,
     phase: '3 Phase',
@@ -416,28 +445,34 @@ export const PRODUCTS: Product[] = [
       'Over-temperature, air pressure protection systems built-in'
     ],
     specs: {
+      'External Air Input Connection': 'Yes with Duty Cycle (at 40°C): 100%',
+      'Built-in Air Compressor': 'Yes with Duty Cycle (at 40°C): 60%',
       'Input Frequency': '50 Hz',
       'Rated Input Voltage': '3-Phase 380V AC ± 10%',
-      'Input Voltage Range': '340 ~ 420 V',
-      'Maximum Input Capacity': '19 KVA',
+      'Input Voltage Range': '340~420 V',
+      'Maximum Input Capacity': '19 kVA',
       'Maximum Input Current': '28 A',
       'No-Load Output Voltage': '310 V',
-      'Plasma Cutting Current': '25 - 100 A',
-      'Manual Arc Current Range': '0 - 180 A',
-      'MMA Duty Cycle (40°C)': '180A @ 60%',
-      'Plasma Duty Cycle (40°C)': '100A @ 60%',
-      'Efficiency (%)': '85%',
-      'Clean Cut Capacity': '1 ~ 25 mm',
+      'Plasma Cutting Current Range': '25~100 A',
+      'Manual Arc Welding Current Range': '0~180 A',
+      'MMA Duty Cycle (at 40°C)': '180A @ 60%',
+      'Plasma Cutting Duty Cycle (at 40°C)': '100A @ 60%',
+      'Efficiency': '85%',
+      'Power Factor (cos Ø)': '0.8',
+      'Clean Cut Capacity': '1~25 mm',
       'Maximum Cut Capacity': '35 mm',
-      'Insulation Class': 'H',
+      'Technology Type': 'Silicon Carbide (SiC)',
+      'Output Connection Type': '35-50 Quick Connect',
+      'Cooling System': 'Forced Air',
+      'Insulation Class': 'Grade H',
       'Protection Class': 'IP23S',
-      'Dimension (mm)': '502 x 209 x 554',
-      'Net Weight': '29 KG'
+      'Dimensions (L x W x H)': '502 x 209 x 554 mm',
+      'Net Weight': '29 kg',
+      'Gross Weight': '32 kg'
     },
     accessories: [
-      'P80 Plasma Cutting Air-Cooled Torch (5 meters)',
-      'High-Grade Earthing Clamp with 2-meter cable',
-      'External air intake adapter kits'
+      'P80 Plasma Cutting Manual Air cooled Torch 5meter',
+      'Earthing Clamp with cable 2 meter'
     ]
   }
 ];
