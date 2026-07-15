@@ -27,6 +27,13 @@ interface GalleryItem {
   timestamp?: number;
 }
 
+interface PhotoSlot {
+  id: string;
+  slotNumber: number;
+  image: string | null;
+  timestamp?: number;
+}
+
 interface GalleryViewProps {
   setLightboxImage: (image: { src: string, alt: string, title?: string } | null) => void;
 }
@@ -35,6 +42,7 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [uploadedPhotos, setUploadedPhotos] = useState<GalleryItem[]>([]);
+  const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [category, setCategory] = useState<'showroom' | 'machines' | 'accessories' | 'uploads'>('uploads');
@@ -126,12 +134,74 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
     } catch (e) {
       console.error('Failed to parse gallery uploads from storage', e);
     }
+
+    try {
+      const storedSlots = localStorage.getItem('garg_gallery_slots');
+      if (storedSlots) {
+        setPhotoSlots(JSON.parse(storedSlots));
+      } else {
+        const defaultSlots: PhotoSlot[] = Array.from({ length: 20 }, (_, i) => ({
+          id: `slot-${i + 1}`,
+          slotNumber: i + 1,
+          image: null,
+        }));
+        localStorage.setItem('garg_gallery_slots', JSON.stringify(defaultSlots));
+        setPhotoSlots(defaultSlots);
+      }
+    } catch (e) {
+      console.error('Failed to parse gallery slots from storage', e);
+    }
   }, []);
 
   // Save user uploads helper
   const saveToStorage = (updatedList: GalleryItem[]) => {
     localStorage.setItem('garg_gallery_uploads', JSON.stringify(updatedList));
     setUploadedPhotos(updatedList);
+  };
+
+  const handleSlotUpload = (slotId: string, file: File) => {
+    if (!file.type.startsWith('image/')) {
+      triggerNotification('error', 'Only image files (PNG, JPG, JPEG) are allowed.');
+      return;
+    }
+    // Limit to 2.5MB to prevent filling up local storage
+    if (file.size > 2.5 * 1024 * 1024) {
+      triggerNotification('error', 'Image size exceeds 2.5MB. Please choose a smaller image.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64Image = e.target?.result as string;
+      const updatedSlots = photoSlots.map(slot => {
+        if (slot.id === slotId) {
+          return {
+            ...slot,
+            image: base64Image,
+            timestamp: Date.now()
+          };
+        }
+        return slot;
+      });
+      setPhotoSlots(updatedSlots);
+      localStorage.setItem('garg_gallery_slots', JSON.stringify(updatedSlots));
+      triggerNotification('success', `Photo successfully saved in Slot #${photoSlots.find(s => s.id === slotId)?.slotNumber}!`);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleClearSlot = (slotId: string, slotNumber: number) => {
+    if (window.confirm(`Are you sure you want to clear the photo in Slot #${slotNumber}?`)) {
+      const updatedSlots = photoSlots.map(slot => {
+        if (slot.id === slotId) {
+          return { ...slot, image: null, timestamp: undefined };
+        }
+        return slot;
+      });
+      setPhotoSlots(updatedSlots);
+      localStorage.setItem('garg_gallery_slots', JSON.stringify(updatedSlots));
+      triggerNotification('success', `Slot #${slotNumber} has been cleared.`);
+    }
   };
 
   // Trigger brief alert/notification
@@ -148,6 +218,7 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
     { id: 'showroom', label: 'Showroom & Stock' },
     { id: 'machines', label: 'Welding Machines' },
     { id: 'accessories', label: 'Hose & Spares' },
+    { id: 'slots', label: '20 Photo Places' },
     { id: 'uploads', label: 'My Uploaded Photos' },
   ];
 
@@ -159,6 +230,12 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
     if (activeFilter === 'all') return true;
     return item.category === activeFilter;
   });
+
+  const displayCount = activeFilter === 'slots' 
+    ? 20 
+    : (activeFilter === 'all' 
+        ? filteredItems.length + 20 
+        : filteredItems.length);
 
   // Handle Drag & Drop events
   const handleDragOver = (e: React.DragEvent) => {
@@ -460,12 +537,12 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
 
             <div className="text-xs font-mono text-zinc-500 flex items-center gap-1.5 bg-white border border-zinc-200 rounded-lg px-3 py-2 shrink-0 self-start">
               <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-              <span>Showing {filteredItems.length} elements</span>
+              <span>Showing {displayCount} elements</span>
             </div>
           </div>
 
           {/* Dynamic Feed Grid */}
-          {filteredItems.length === 0 ? (
+          {activeFilter !== 'slots' && filteredItems.length === 0 ? (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -497,99 +574,220 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
               )}
             </motion.div>
           ) : (
-            <motion.div 
-              layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-              id="gallery-images-grid"
-            >
-              <AnimatePresence mode="popLayout">
-                {filteredItems.map((item) => (
-                  <motion.div
-                    layout
-                    key={item.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3 }}
-                    className="bg-white rounded-2xl overflow-hidden border border-zinc-200 hover:border-orange-500/20 shadow-2xs hover:shadow-lg transition-all flex flex-col group relative"
-                  >
-                    {/* Visual Panel frame */}
-                    <div className="relative aspect-video bg-zinc-50 overflow-hidden shrink-0">
-                      <img 
-                        src={item.image} 
-                        alt={item.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        referrerPolicy="no-referrer"
-                      />
-                      
-                      {/* Interactive click overlay with blur glass effect */}
-                      <div className="absolute inset-0 bg-zinc-950/25 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-10">
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setLightboxImage({ src: item.image, alt: item.description, title: item.title })}
-                            className="bg-white hover:bg-orange-600 hover:text-white text-zinc-900 px-4 py-2.5 rounded-xl shadow-md font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-                            title="Zoom High-Res"
-                          >
-                            <Eye className="w-4 h-4" />
-                            <span>View Full Size</span>
-                          </button>
+            <>
+              {activeFilter !== 'slots' && (
+                <motion.div 
+                  layout
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                  id="gallery-images-grid"
+                >
+                  <AnimatePresence mode="popLayout">
+                    {filteredItems.map((item) => (
+                      <motion.div
+                        layout
+                        key={item.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.3 }}
+                        className="bg-white rounded-2xl overflow-hidden border border-zinc-200 hover:border-orange-500/20 shadow-2xs hover:shadow-lg transition-all flex flex-col group relative"
+                      >
+                        {/* Visual Panel frame */}
+                        <div className="relative aspect-video bg-zinc-50 overflow-hidden shrink-0">
+                          <img 
+                            src={item.image} 
+                            alt={item.title} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            referrerPolicy="no-referrer"
+                          />
                           
+                          {/* Interactive click overlay with blur glass effect */}
+                          <div className="absolute inset-0 bg-zinc-950/25 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-10">
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setLightboxImage({ src: item.image, alt: item.description, title: item.title })}
+                                className="bg-white hover:bg-orange-600 hover:text-white text-zinc-900 px-4 py-2.5 rounded-xl shadow-md font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                                title="Zoom High-Res"
+                              >
+                                <Eye className="w-4 h-4" />
+                                <span>View Full Size</span>
+                              </button>
+                              
+                              {item.isUserUploaded && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteItem(item.id, item.title)}
+                                  className="bg-zinc-900 hover:bg-red-600 text-white p-2.5 rounded-xl shadow-md transition-colors cursor-pointer flex items-center justify-center"
+                                  title="Delete Upload"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Tag stamp badge */}
+                          <div className="absolute top-4 left-4 bg-zinc-950/80 backdrop-blur-xs text-white text-[9px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 rounded-md shadow-sm z-10 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                            <span>{item.category === 'uploads' ? 'My Upload' : item.category.toUpperCase()}</span>
+                          </div>
+
+                          {/* Delete icon for mobile visible immediately */}
                           {item.isUserUploaded && (
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteItem(item.id, item.title)}
-                              className="bg-zinc-900 hover:bg-red-600 text-white p-2.5 rounded-xl shadow-md transition-colors cursor-pointer flex items-center justify-center"
-                              title="Delete Upload"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <div className="absolute top-4 right-4 z-10 block lg:hidden">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteItem(item.id, item.title)}
+                                className="bg-red-600 text-white p-2 rounded-full shadow-md hover:bg-red-700 transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           )}
                         </div>
-                      </div>
 
-                      {/* Tag stamp badge */}
-                      <div className="absolute top-4 left-4 bg-zinc-950/80 backdrop-blur-xs text-white text-[9px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 rounded-md shadow-sm z-10 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                        <span>{item.category === 'uploads' ? 'My Upload' : item.category.toUpperCase()}</span>
-                      </div>
+                        {/* Content Panel */}
+                        <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                          <div className="space-y-1">
+                            <h3 className="font-display font-black text-sm sm:text-base text-zinc-900 tracking-tight leading-snug">
+                              {item.title}
+                            </h3>
+                            <p className="text-zinc-500 text-xs leading-relaxed font-sans line-clamp-2">
+                              {item.description}
+                            </p>
+                          </div>
 
-                      {/* Delete icon for mobile visible immediately */}
-                      {item.isUserUploaded && (
-                        <div className="absolute top-4 right-4 z-10 block lg:hidden">
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteItem(item.id, item.title)}
-                            className="bg-red-600 text-white p-2 rounded-full shadow-md hover:bg-red-700 transition-colors cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 pt-2 border-t border-zinc-100">
+                            <span>Source: {item.isUserUploaded ? 'Your Device' : 'HQ Factory Showroom'}</span>
+                            {item.timestamp && (
+                              <span>{new Date(item.timestamp).toLocaleDateString()}</span>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
+              )}
 
-                    {/* Content Panel */}
-                    <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                      <div className="space-y-1">
-                        <h3 className="font-display font-black text-sm sm:text-base text-zinc-900 tracking-tight leading-snug">
-                          {item.title}
-                        </h3>
-                        <p className="text-zinc-500 text-xs leading-relaxed font-sans line-clamp-2">
-                          {item.description}
-                        </p>
+              {/* SECTION SEPARATOR AND INTERACTIVE PHOTO PLACES FOR 'all' OR 'slots' */}
+              {(activeFilter === 'all' || activeFilter === 'slots') && (
+                <div className="space-y-8 mt-12">
+                  {activeFilter === 'all' && (
+                    <div className="pt-12 pb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-px bg-zinc-200 flex-1" />
+                        <h2 className="font-display font-black text-xl text-zinc-900 px-4 whitespace-nowrap flex items-center gap-2 animate-pulse">
+                          <Camera className="w-5 h-5 text-orange-600" />
+                          <span>Interactive Photo Places (20 Slots)</span>
+                        </h2>
+                        <div className="h-px bg-zinc-200 flex-1" />
                       </div>
+                      <p className="text-zinc-500 text-xs text-center mt-2 max-w-md mx-auto">
+                        Click on any slot below to instantly upload and display photos without filling in any forms.
+                      </p>
+                    </div>
+                  )}
 
-                      <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 pt-2 border-t border-zinc-100">
-                        <span>Source: {item.isUserUploaded ? 'Your Device' : 'HQ Factory Showroom'}</span>
-                        {item.timestamp && (
-                          <span>{new Date(item.timestamp).toLocaleDateString()}</span>
+                  <motion.div 
+                    layout
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                    id="gallery-slots-grid"
+                  >
+                    {photoSlots.map((slot) => (
+                      <motion.div
+                        layout
+                        key={slot.id}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.2 }}
+                        className="relative"
+                      >
+                        {slot.image ? (
+                          <div className="bg-white rounded-2xl overflow-hidden border border-zinc-200 hover:border-orange-500/20 shadow-2xs hover:shadow-lg transition-all flex flex-col group h-full">
+                            <div className="relative aspect-video bg-zinc-50 overflow-hidden shrink-0">
+                              <img 
+                                src={slot.image} 
+                                alt={`Photo Slot ${slot.slotNumber}`} 
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                referrerPolicy="no-referrer"
+                              />
+                              <div className="absolute inset-0 bg-zinc-950/25 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-10">
+                                <div className="flex gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => setLightboxImage({ src: slot.image!, alt: `Photo Slot #${slot.slotNumber}`, title: `Photo Place #${slot.slotNumber}` })}
+                                    className="bg-white hover:bg-orange-600 hover:text-white text-zinc-900 px-4 py-2.5 rounded-xl shadow-md font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                    <span>View Full Size</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleClearSlot(slot.id, slot.slotNumber)}
+                                    className="bg-zinc-900 hover:bg-red-600 text-white p-2.5 rounded-xl shadow-md transition-colors cursor-pointer flex items-center justify-center"
+                                    title="Clear Slot"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="absolute top-4 left-4 bg-zinc-950/80 backdrop-blur-xs text-white text-[9px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 rounded-md shadow-sm z-10 flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                                <span>Slot #{slot.slotNumber}</span>
+                              </div>
+                            </div>
+                            <div className="p-5 flex-1 flex flex-col justify-between">
+                              <div className="space-y-1">
+                                <h3 className="font-display font-black text-sm sm:text-base text-zinc-900 tracking-tight leading-snug">
+                                  Photo Place #{slot.slotNumber}
+                                </h3>
+                                <p className="text-zinc-500 text-xs font-sans">
+                                  Quick photo uploaded directly into Slot #{slot.slotNumber} without manual specification.
+                                </p>
+                              </div>
+                              <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 pt-3 mt-3 border-t border-zinc-100">
+                                <span>Direct Slot Upload</span>
+                                {slot.timestamp && (
+                                  <span>{new Date(slot.timestamp).toLocaleDateString()}</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="border-2 border-dashed border-zinc-200 hover:border-orange-500/50 bg-white hover:bg-zinc-50/50 transition-all rounded-2xl flex flex-col items-center justify-center p-6 text-center h-[280px] relative overflow-hidden group">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-15"
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  handleSlotUpload(slot.id, e.target.files[0]);
+                                }
+                              }}
+                            />
+                            <div className="w-12 h-12 bg-zinc-50 group-hover:bg-orange-50 text-zinc-400 group-hover:text-orange-600 rounded-full flex items-center justify-center mb-3 transition-colors shadow-2xs">
+                              <Camera className="w-5 h-5" />
+                            </div>
+                            <h4 className="font-display font-black text-sm text-zinc-900 tracking-tight">
+                              Photo Place #{slot.slotNumber}
+                            </h4>
+                            <p className="text-zinc-500 text-xs max-w-xs mt-1 font-sans">
+                              Click to upload photo here
+                            </p>
+                            <span className="text-[9px] font-mono text-zinc-400 mt-2 bg-zinc-100 px-2 py-0.5 rounded-sm">
+                              No specification needed
+                            </span>
+                          </div>
                         )}
-                      </div>
-                    </div>
+                      </motion.div>
+                    ))}
                   </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
+                </div>
+              )}
+            </>
           )}
 
         </section>
