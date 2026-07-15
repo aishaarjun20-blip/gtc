@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Upload, Trash2, Camera, Filter, Sparkles, Eye, 
-  PlusCircle, Search, Image as ImageIcon, AlertCircle, CheckCircle, Info
+  Sparkles, Eye, Image as ImageIcon
 } from 'lucide-react';
 
 // Import local premium assets
@@ -17,302 +16,22 @@ import mmaBlackWelder from '../assets/images/mma_black_welder_1783838095890.jpg'
 import mkgMigWelder from '../assets/images/mkg_mig_welder_1783838145697.jpg';
 import plasmaCutter from '../assets/images/plasma_cutter_1783838182629.jpg';
 
+// Import newly uploaded system assets
+import migTrolleyFeeder from '../assets/images/mig_trolley_feeder_1783838166873.jpg';
+import mkgCutSic from '../assets/images/mkg_cut_sic_1783838643145.jpg';
+import mkgMigSic from '../assets/images/mkg_mig_sic_1783838626394.jpg';
+import mkgMmaSic from '../assets/images/mkg_mma_sic_1783838608406.jpg';
+import mkgTigWelder from '../assets/images/mkg_tig_welder_1783838129019.jpg';
+import mmaYellowGrey from '../assets/images/mma_yellow_grey_1783838114397.jpg';
+import mma400stWelder from '../assets/images/mma_400st_welder_1783840646987.jpg';
+
 interface GalleryItem {
   id: string;
   title: string;
-  category: 'showroom' | 'machines' | 'accessories' | 'uploads';
+  category: 'showroom' | 'machines' | 'accessories';
   image: string;
   description: string;
-  isUserUploaded?: boolean;
   timestamp?: number;
-}
-
-interface PhotoSlot {
-  id: string;
-  slotNumber: number;
-  image: string | null;
-  timestamp?: number;
-}
-
-// --- Robust IndexedDB Storage Implementation to prevent QuotaExceededError ---
-const DB_NAME = 'GargTradingGalleryDB';
-const DB_VERSION = 1;
-
-function initDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    if (typeof indexedDB === 'undefined') {
-      reject(new Error('IndexedDB is not supported in this environment'));
-      return;
-    }
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains('uploads')) {
-        db.createObjectStore('uploads', { keyPath: 'id' });
-      }
-      if (!db.objectStoreNames.contains('slots')) {
-        db.createObjectStore('slots', { keyPath: 'id' });
-      }
-    };
-    request.onsuccess = (event) => {
-      resolve((event.target as IDBOpenDBRequest).result);
-    };
-    request.onerror = (event) => {
-      reject((event.target as IDBOpenDBRequest).error);
-    };
-  });
-}
-
-function getAllFromStore<T>(storeName: 'uploads' | 'slots'): Promise<T[]> {
-  return initDB().then((db) => {
-    return new Promise<T[]>((resolve, reject) => {
-      const transaction = db.transaction(storeName, 'readonly');
-      const store = transaction.objectStore(storeName);
-      const request = store.getAll();
-      request.onsuccess = () => {
-        resolve(request.result || []);
-      };
-      request.onerror = () => {
-        reject(request.error);
-      };
-    });
-  });
-}
-
-function saveToStore<T>(storeName: 'uploads' | 'slots', item: T): Promise<void> {
-  return initDB().then((db) => {
-    return new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction(storeName, 'readwrite');
-      const store = transaction.objectStore(storeName);
-      const request = store.put(item);
-      request.onsuccess = () => {
-        resolve();
-      };
-      request.onerror = () => {
-        reject(request.error);
-      };
-    });
-  });
-}
-
-function deleteFromStore(storeName: 'uploads' | 'slots', id: string): Promise<void> {
-  return initDB().then((db) => {
-    return new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction(storeName, 'readwrite');
-      const store = transaction.objectStore(storeName);
-      const request = store.delete(id);
-      request.onsuccess = () => {
-        resolve();
-      };
-      request.onerror = () => {
-        reject(request.error);
-      };
-    });
-  });
-}
-
-// --- Safe wrappers that fall back to localStorage on exception ---
-async function getUploadsFromDB(): Promise<GalleryItem[]> {
-  try {
-    const dbItems = await getAllFromStore<GalleryItem>('uploads');
-    
-    // Migrate from garg_gallery_uploads localStorage if any
-    const stored = localStorage.getItem('garg_gallery_uploads');
-    if (stored) {
-      try {
-        const lsItems: GalleryItem[] = JSON.parse(stored);
-        if (Array.isArray(lsItems) && lsItems.length > 0) {
-          let migratedAny = false;
-          for (const item of lsItems) {
-            const alreadyExists = dbItems.some(x => x.id === item.id || x.image === item.image);
-            if (!alreadyExists) {
-              await saveToStore('uploads', item);
-              dbItems.push(item);
-              migratedAny = true;
-            }
-          }
-          if (migratedAny) {
-            console.log('Migrated old uploads from localStorage to IndexedDB');
-          }
-        }
-      } catch (e) {
-        console.error('Failed to parse or migrate localStorage uploads', e);
-      }
-    }
-
-    // Migrate from garg_gallery_slots localStorage if any
-    const storedSlots = localStorage.getItem('garg_gallery_slots');
-    if (storedSlots) {
-      try {
-        const lsSlots: PhotoSlot[] = JSON.parse(storedSlots);
-        if (Array.isArray(lsSlots) && lsSlots.length > 0) {
-          let migratedAny = false;
-          for (const slot of lsSlots) {
-            if (slot.image) {
-              const slotItemId = `migrated-slot-${slot.id}`;
-              const alreadyExists = dbItems.some(x => x.id === slotItemId || x.image === slot.image);
-              if (!alreadyExists) {
-                const item: GalleryItem = {
-                  id: slotItemId,
-                  title: `Photo Place #${slot.slotNumber}`,
-                  category: 'uploads',
-                  image: slot.image,
-                  description: `Photo migrated from Slot #${slot.slotNumber}.`,
-                  isUserUploaded: true,
-                  timestamp: slot.timestamp || Date.now()
-                };
-                await saveToStore('uploads', item);
-                dbItems.push(item);
-                migratedAny = true;
-              }
-            }
-          }
-          if (migratedAny) {
-            console.log('Migrated old slot photos from localStorage to IndexedDB uploads');
-          }
-        }
-      } catch (e) {
-        console.error('Failed to migrate slot images to uploads', e);
-      }
-    }
-
-    // Also migrate from IndexedDB 'slots' store if any have non-null images
-    try {
-      const dbSlots = await getAllFromStore<PhotoSlot>('slots');
-      if (dbSlots && dbSlots.length > 0) {
-        let migratedAny = false;
-        for (const slot of dbSlots) {
-          if (slot.image) {
-            const slotItemId = `migrated-idb-slot-${slot.id}`;
-            const alreadyExists = dbItems.some(x => x.id === slotItemId || x.image === slot.image);
-            if (!alreadyExists) {
-              const item: GalleryItem = {
-                id: slotItemId,
-                title: `Photo Place #${slot.slotNumber}`,
-                category: 'uploads',
-                image: slot.image,
-                description: `Photo migrated from Slot #${slot.slotNumber}.`,
-                isUserUploaded: true,
-                timestamp: slot.timestamp || Date.now()
-              };
-              await saveToStore('uploads', item);
-              dbItems.push(item);
-              migratedAny = true;
-            }
-          }
-        }
-        if (migratedAny) {
-          console.log('Migrated old slot photos from IndexedDB slots to uploads');
-        }
-      }
-    } catch (e) {
-      console.warn('Could not read/migrate slots from IndexedDB', e);
-    }
-
-    // Sort by timestamp descending
-    return dbItems.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-  } catch (err) {
-    console.warn('IndexedDB read failed for uploads, falling back to localStorage', err);
-    try {
-      const stored = localStorage.getItem('garg_gallery_uploads');
-      return stored ? JSON.parse(stored) : [];
-    } catch (e) {
-      console.error('localStorage fallback read failed', e);
-      return [];
-    }
-  }
-}
-
-async function saveUploadToDB(item: GalleryItem): Promise<void> {
-  try {
-    await saveToStore('uploads', item);
-  } catch (err) {
-    console.warn('IndexedDB write failed for uploads, falling back to localStorage', err);
-    try {
-      const stored = localStorage.getItem('garg_gallery_uploads');
-      const list = stored ? JSON.parse(stored) : [];
-      const updated = [item, ...list.filter((x: any) => x.id !== item.id)];
-      localStorage.setItem('garg_gallery_uploads', JSON.stringify(updated));
-    } catch (e) {
-      console.error('localStorage save fallback failed', e);
-    }
-  }
-}
-
-async function deleteUploadFromDB(id: string): Promise<void> {
-  try {
-    await deleteFromStore('uploads', id);
-  } catch (err) {
-    console.warn('IndexedDB delete failed, falling back to localStorage', err);
-    try {
-      const stored = localStorage.getItem('garg_gallery_uploads');
-      if (stored) {
-        const list = JSON.parse(stored);
-        const updated = list.filter((x: any) => x.id !== id);
-        localStorage.setItem('garg_gallery_uploads', JSON.stringify(updated));
-      }
-    } catch (e) {
-      console.error('localStorage delete fallback failed', e);
-    }
-  }
-}
-
-async function getSlotsFromDB(): Promise<PhotoSlot[]> {
-  try {
-    const slots = await getAllFromStore<PhotoSlot>('slots');
-    if (slots && slots.length > 0) {
-      return [...slots].sort((a, b) => a.slotNumber - b.slotNumber);
-    }
-    const defaultSlots: PhotoSlot[] = Array.from({ length: 20 }, (_, i) => ({
-      id: `slot-${i + 1}`,
-      slotNumber: i + 1,
-      image: null,
-    }));
-    try {
-      await Promise.all(defaultSlots.map(s => saveToStore('slots', s)));
-    } catch (e) {
-      console.warn('Failed to pre-populate slots in IndexedDB', e);
-    }
-    return defaultSlots;
-  } catch (err) {
-    console.warn('IndexedDB read failed for slots, falling back to localStorage', err);
-    try {
-      const storedSlots = localStorage.getItem('garg_gallery_slots');
-      if (storedSlots) {
-        return JSON.parse(storedSlots);
-      }
-      const defaultSlots: PhotoSlot[] = Array.from({ length: 20 }, (_, i) => ({
-        id: `slot-${i + 1}`,
-        slotNumber: i + 1,
-        image: null,
-      }));
-      localStorage.setItem('garg_gallery_slots', JSON.stringify(defaultSlots));
-      return defaultSlots;
-    } catch (e) {
-      console.error('localStorage slots read fallback failed', e);
-      return Array.from({ length: 20 }, (_, i) => ({
-        id: `slot-${i + 1}`,
-        slotNumber: i + 1,
-        image: null,
-      }));
-    }
-  }
-}
-
-async function saveSlotToDB(slot: PhotoSlot): Promise<void> {
-  try {
-    await saveToStore('slots', slot);
-  } catch (err) {
-    console.warn('IndexedDB save failed for slot, falling back to localStorage', err);
-    try {
-      const storedSlots = localStorage.getItem('garg_gallery_slots');
-      const slots: PhotoSlot[] = storedSlots ? JSON.parse(storedSlots) : [];
-      const updated = slots.map(s => s.id === slot.id ? slot : s);
-      localStorage.setItem('garg_gallery_slots', JSON.stringify(updated));
-    } catch (e) {
-      console.error('localStorage slot save fallback failed', e);
-    }
-  }
 }
 
 interface GalleryViewProps {
@@ -321,16 +40,8 @@ interface GalleryViewProps {
 
 export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
   const [activeFilter, setActiveFilter] = useState<string>('all');
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [uploadedPhotos, setUploadedPhotos] = useState<GalleryItem[]>([]);
-  const [title, setTitle] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-  const [category, setCategory] = useState<'showroom' | 'machines' | 'accessories' | 'uploads'>('uploads');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [notification, setNotification] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
 
-  // Default professional gallery items
+  // Curated professional gallery items (includes previous user uploads as system photos)
   const defaultItems: GalleryItem[] = [
     {
       id: 'def-showroom-1',
@@ -402,22 +113,56 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
       image: plasmaCutter,
       description: 'High pressure pilot arc cutter for precise dross-free mild steel slicing.',
     },
+    {
+      id: 'sys-mig-trolley',
+      title: 'MKG MIG Trolley Feeder Unit',
+      category: 'machines',
+      image: migTrolleyFeeder,
+      description: 'Heavy duty external wire feeder unit with a stable mobile trolley base for large-scale shipyard fabrication.',
+    },
+    {
+      id: 'sys-cut-sic',
+      title: 'MKG CUT-100 SiC Plasma Cutter',
+      category: 'machines',
+      image: mkgCutSic,
+      description: 'High efficiency Silicon Carbide inverter plasma cutting system, delivering precise CNC-ready steel separation.',
+    },
+    {
+      id: 'sys-mig-sic',
+      title: 'MKG MIG-350 SiC Industrial Welder',
+      category: 'machines',
+      image: mkgMigSic,
+      description: 'Premium MIG/MAG welding machine with SiC power modules, designed for low-spatter gas-shielded fabrication.',
+    },
+    {
+      id: 'sys-mma-sic',
+      title: 'MKG MMA-400 SiC Manual Arc Welder',
+      category: 'machines',
+      image: mkgMmaSic,
+      description: 'Silicon Carbide inverter stick welder optimized for highly stable root pass welding in rugged environments.',
+    },
+    {
+      id: 'sys-tig-welder',
+      title: 'MKG TIG-200 Pulse TIG/ARC System',
+      category: 'machines',
+      image: mkgTigWelder,
+      description: 'High frequency pulsed TIG welder featuring digital controls and stable arc start for immaculate alloy fabrication.',
+    },
+    {
+      id: 'sys-mma-yellow-grey',
+      title: 'MKG Yellow-Grey Series Arc Welder',
+      category: 'machines',
+      image: mmaYellowGrey,
+      description: 'High portability dual-voltage manual metal arc welder featuring dynamic hot start and arc force adjustments.',
+    },
+    {
+      id: 'sys-mma-400st',
+      title: 'MKG MMA-400ST Heavy Duty Welder',
+      category: 'machines',
+      image: mma400stWelder,
+      description: 'High-amperage industrial stick welding system optimized for cellulosic electrode performance on overland pipelines.',
+    }
   ];
-
-  // Load user uploads and custom slot photos from IndexedDB with safe local fallback
-  useEffect(() => {
-    getUploadsFromDB().then((uploads) => {
-      setUploadedPhotos(uploads);
-    });
-  }, []);
-
-  // Trigger brief alert/notification
-  const triggerNotification = (type: 'success' | 'error', message: string) => {
-    setNotification({ type, message });
-    setTimeout(() => {
-      setNotification({ type: null, message: '' });
-    }, 4500);
-  };
 
   // Filter handlers
   const filters = [
@@ -425,114 +170,15 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
     { id: 'showroom', label: 'Showroom & Stock' },
     { id: 'machines', label: 'Welding Machines' },
     { id: 'accessories', label: 'Hose & Spares' },
-    { id: 'uploads', label: 'My Uploaded Photos' },
   ];
 
-  // Merge lists
-  const allItems = [...uploadedPhotos, ...defaultItems];
-
   // Filter items
-  const filteredItems = allItems.filter(item => {
+  const filteredItems = defaultItems.filter(item => {
     if (activeFilter === 'all') return true;
     return item.category === activeFilter;
   });
 
   const displayCount = filteredItems.length;
-
-  // Handle Drag & Drop events
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const processFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      triggerNotification('error', 'Only image files (PNG, JPG, JPEG) are allowed.');
-      return;
-    }
-    // Limit to 2.5MB to preserve local performance
-    if (file.size > 2.5 * 1024 * 1024) {
-      triggerNotification('error', 'Image size exceeds 2.5MB. Please upload a compressed or smaller image.');
-      return;
-    }
-
-    setSelectedFile(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreviewUrl(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      processFile(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      processFile(e.target.files[0]);
-    }
-  };
-
-  const handleCancelFile = () => {
-    setSelectedFile(null);
-    setPreviewUrl(null);
-  };
-
-  const handleUploadSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!previewUrl) {
-      triggerNotification('error', 'Please select or drag an image first.');
-      return;
-    }
-
-    const titleText = title.trim() || selectedFile?.name.split('.')[0] || 'Uploaded Photo';
-    const descText = description.trim() || 'Custom showroom reference photo uploaded by user.';
-
-    const newItem: GalleryItem = {
-      id: `user-img-${Date.now()}`,
-      title: titleText,
-      category: category,
-      image: previewUrl,
-      description: descText,
-      isUserUploaded: true,
-      timestamp: Date.now()
-    };
-
-    const updatedList = [newItem, ...uploadedPhotos];
-    setUploadedPhotos(updatedList);
-    saveUploadToDB(newItem);
-    
-    // Reset form states
-    setTitle('');
-    setDescription('');
-    setSelectedFile(null);
-    setPreviewUrl(null);
-    setCategory('uploads');
-    
-    triggerNotification('success', `"${titleText}" uploaded successfully to your local gallery!`);
-    
-    // Auto switch view to Uploads category to show the user's newest post
-    setActiveFilter('uploads');
-  };
-
-  // Delete user uploaded item
-  const handleDeleteItem = (id: string, itemTitle: string) => {
-    if (window.confirm(`Are you sure you want to delete "${itemTitle}" from your gallery?`)) {
-      const updatedList = uploadedPhotos.filter(item => item.id !== id);
-      setUploadedPhotos(updatedList);
-      deleteUploadFromDB(id);
-      triggerNotification('success', `"${itemTitle}" was deleted.`);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-zinc-50 py-16 px-4 sm:px-6 lg:px-8">
@@ -545,171 +191,9 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
             Garg Trading Photo Gallery
           </h1>
           <p className="text-zinc-500 text-sm sm:text-base max-w-xl mx-auto">
-            Browse our heavy machine stock, showroom layouts, and specialized welding systems. Use the uploader tool to add real-time custom stock photos directly.
+            Browse our heavy machine stock, showroom layouts, and specialized welding systems.
           </p>
         </div>
-
-        {/* Upload Segment Panel */}
-        <section className="bg-white rounded-3xl border border-zinc-200 shadow-xs overflow-hidden">
-          <div className="border-b border-zinc-100 bg-zinc-50/40 p-6">
-            <h2 className="font-display font-black text-lg sm:text-xl text-zinc-900 flex items-center gap-2">
-              <Camera className="w-5 h-5 text-orange-600" />
-              <span>Real-Time Stock Photo Uploader</span>
-            </h2>
-            <p className="text-zinc-500 text-xs mt-1">
-              Store real-time warehouse pictures or client delivery snapshots. Images are saved locally inside your browser's secure data cache.
-            </p>
-          </div>
-
-          <div className="p-6 md:p-8">
-            {/* Notification alert toast */}
-            <AnimatePresence>
-              {notification.type && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className={`mb-6 p-4 rounded-xl flex items-start gap-3 border text-xs sm:text-sm font-sans ${
-                    notification.type === 'success' 
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
-                      : 'bg-red-50 border-red-200 text-red-800'
-                  }`}
-                  id="gallery-toast"
-                >
-                  {notification.type === 'success' ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                  ) : (
-                    <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                  )}
-                  <div>
-                    <span className="font-bold block">
-                      {notification.type === 'success' ? 'Success' : 'Upload Denied'}
-                    </span>
-                    <p className="mt-0.5">{notification.message}</p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              
-              {/* Dropzone Upload Box (Col 7) */}
-              <div className="lg:col-span-7">
-                {!previewUrl ? (
-                  <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={`border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all flex flex-col items-center justify-center min-h-[280px] cursor-pointer relative ${
-                      isDragging 
-                        ? 'border-orange-500 bg-orange-50/40' 
-                        : 'border-zinc-200 hover:border-orange-500/50 hover:bg-zinc-50/50'
-                    }`}
-                  >
-                    <input 
-                      type="file" 
-                      id="file-upload-input" 
-                      accept="image/*" 
-                      onChange={handleFileChange}
-                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                    />
-                    <div className="w-14 h-14 bg-orange-50 rounded-full flex items-center justify-center text-orange-600 mb-4 shadow-2xs">
-                      <Upload className="w-6 h-6" />
-                    </div>
-                    <h3 className="font-display font-black text-base text-zinc-900 tracking-tight">
-                      Drag & Drop Photo Here
-                    </h3>
-                    <p className="text-zinc-500 text-xs max-w-xs mt-1.5 font-sans">
-                      Or click to browse from device. Supports JPG, JPEG, and PNG.
-                    </p>
-
-                    <div className="mt-6 flex items-center gap-1.5 bg-zinc-100 border border-zinc-200/60 text-zinc-500 rounded-lg px-3 py-1.5 text-[10px] font-mono">
-                      <Info className="w-3.5 h-3.5 text-zinc-400" />
-                      <span>Max recommended resolution limit: 2.5 MB</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="relative aspect-video max-h-[300px] w-full rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800 shadow-inner flex items-center justify-center">
-                      <img 
-                        src={previewUrl} 
-                        alt="Preview upload" 
-                        className="max-h-full object-contain"
-                      />
-                      <button 
-                        type="button"
-                        onClick={handleCancelFile}
-                        className="absolute top-4 right-4 bg-zinc-900/90 hover:bg-red-600 text-white p-2 rounded-full transition-all cursor-pointer shadow-md border border-zinc-800"
-                        title="Cancel photo select"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <div className="flex justify-between items-center text-xs text-zinc-500 font-mono bg-zinc-50 p-3 rounded-xl border border-zinc-200/60">
-                      <span>File Selected: {selectedFile?.name}</span>
-                      <span>({(selectedFile!.size / (1024 * 1024)).toFixed(2)} MB)</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Upload Meta Form (Col 5) */}
-              <div className="lg:col-span-5 bg-zinc-50/50 rounded-2xl p-5 border border-zinc-200/80">
-                <form onSubmit={handleUploadSubmit} className="space-y-4">
-                  <h3 className="font-display font-bold text-sm text-zinc-800 uppercase tracking-wider mb-2">Photo specifications</h3>
-                  
-                  <div className="space-y-1">
-                    <label className="text-xs font-mono font-bold text-zinc-600 block">Photo Title *</label>
-                    <input 
-                      type="text" 
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="e.g. MKG MMA-300 Delivery Stock" 
-                      className="w-full bg-white border border-zinc-200 focus:border-orange-500 focus:outline-hidden text-sm rounded-lg p-2.5 font-sans"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-mono font-bold text-zinc-600 block">Category Label *</label>
-                    <select 
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value as any)}
-                      className="w-full bg-white border border-zinc-200 focus:border-orange-500 focus:outline-hidden text-sm rounded-lg p-2.5 font-sans"
-                    >
-                      <option value="uploads">My Uploads</option>
-                      <option value="showroom">Showroom & Stock</option>
-                      <option value="machines">Welding Machines</option>
-                      <option value="accessories">Hose & Spares</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-mono font-bold text-zinc-600 block">Short Description / Details</label>
-                    <textarea 
-                      rows={3}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="e.g. Stacked physical inventory of dual voltage inverters loaded at our Kolkata Room No. 1 dispatch bay." 
-                      className="w-full bg-white border border-zinc-200 focus:border-orange-500 focus:outline-hidden text-sm rounded-lg p-2.5 font-sans text-xs"
-                    />
-                  </div>
-
-                  <div className="pt-3">
-                    <button
-                      type="submit"
-                      disabled={!previewUrl}
-                      className="w-full text-center bg-orange-600 hover:bg-orange-500 disabled:bg-zinc-200 disabled:text-zinc-400 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md shadow-orange-500/10 cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      <PlusCircle className="w-4 h-4" />
-                      <span>Add to Live Gallery View</span>
-                    </button>
-                  </div>
-                </form>
-              </div>
-
-            </div>
-          </div>
-        </section>
 
         {/* Gallery Grid Feed Segment */}
         <section className="space-y-8">
@@ -730,11 +214,6 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
                   }`}
                 >
                   {filt.label}
-                  {filt.id === 'uploads' && uploadedPhotos.length > 0 && (
-                    <span className="ml-1.5 bg-orange-600 text-white px-1.5 py-0.5 rounded-full text-[9px] font-mono">
-                      {uploadedPhotos.length}
-                    </span>
-                  )}
                 </button>
               ))}
             </div>
@@ -760,22 +239,9 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
                   No images found
                 </h4>
                 <p className="text-zinc-500 text-xs font-sans">
-                  {activeFilter === 'uploads' 
-                    ? 'You have not uploaded any photo references to your local gallery yet.' 
-                    : 'No photos fit your active filtration selection parameters.'}
+                  No photos fit your active filtration selection parameters.
                 </p>
               </div>
-              {activeFilter === 'uploads' && (
-                <button
-                  onClick={() => {
-                    const el = document.getElementById('file-upload-input');
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }}
-                  className="bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition-colors cursor-pointer"
-                >
-                  Choose Your First Image
-                </button>
-              )}
             </motion.div>
           ) : (
             <motion.div 
@@ -815,38 +281,14 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
                             <Eye className="w-4 h-4" />
                             <span>View Full Size</span>
                           </button>
-                          
-                          {item.isUserUploaded && (
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteItem(item.id, item.title)}
-                              className="bg-zinc-900 hover:bg-red-600 text-white p-2.5 rounded-xl shadow-md transition-colors cursor-pointer flex items-center justify-center"
-                              title="Delete Upload"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
                         </div>
                       </div>
 
                       {/* Tag stamp badge */}
                       <div className="absolute top-4 left-4 bg-zinc-950/80 backdrop-blur-xs text-white text-[9px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 rounded-md shadow-sm z-10 flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                        <span>{item.category === 'uploads' ? 'My Upload' : item.category.toUpperCase()}</span>
+                        <span>{item.category.toUpperCase()}</span>
                       </div>
-
-                      {/* Delete icon for mobile visible immediately */}
-                      {item.isUserUploaded && (
-                        <div className="absolute top-4 right-4 z-10 block lg:hidden">
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteItem(item.id, item.title)}
-                            className="bg-red-600 text-white p-2 rounded-full shadow-md hover:bg-red-700 transition-colors cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      )}
                     </div>
 
                     {/* Content Panel */}
@@ -861,10 +303,7 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
                       </div>
 
                       <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 pt-2 border-t border-zinc-100">
-                        <span>Source: {item.isUserUploaded ? 'Your Device' : 'HQ Factory Showroom'}</span>
-                        {item.timestamp && (
-                          <span>{new Date(item.timestamp).toLocaleDateString()}</span>
-                        )}
+                        <span>Source: HQ Factory Showroom</span>
                       </div>
                     </div>
                   </motion.div>
@@ -877,43 +316,5 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
 
       </div>
     </div>
-  );
-}
-
-// Help sub-component: CheckCircle2 alias
-function CheckCircle2(props: any) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  );
-}
-
-// Help sub-component: X icon
-function X(props: any) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </svg>
   );
 }
