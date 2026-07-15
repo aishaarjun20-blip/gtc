@@ -12,6 +12,13 @@ import mmaSicWelder from './assets/images/mkg_mma_sic_1783838608406.jpg';
 import migSicWelder from './assets/images/mkg_mig_sic_1783838626394.jpg';
 import cutSicCutter from './assets/images/mkg_cut_sic_1783838643145.jpg';
 
+// New high-quality product images for MKG line extension
+import mkgGasHosepipe from './assets/images/mkg_gas_hosepipe_1784119192764.jpg';
+import mkgMma250e from './assets/images/mkg_mma_250_e_1784119208150.jpg';
+import mkgArc200n from './assets/images/mkg_arc_200n_1784119221028.jpg';
+import mkgMma500sic from './assets/images/mkg_mma_500_sic_1784119233192.jpg';
+import mkgCut140sic from './assets/images/mkg_cut_140_sic_1784119245796.jpg';
+
 export const BRANDS = [
   { name: 'MKG', logoText: 'MKG', description: 'Premium Inverter Welding & Cutting Systems' },
   { name: 'BOSCH', logoText: 'BOSCH', description: 'World-Class Power & Hand Tools' },
@@ -278,20 +285,20 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'mkg-mig-250st',
-    name: 'MIG 250ST',
-    model: 'MIG 250ST',
+    name: 'MKG 250ST',
+    model: 'MKG 250ST',
     category: 'mig',
     brand: 'MKG',
     image: mkgMigWelder,
-    tagline: 'Multi-Phase MIG / ARC Combined Smart Inverter',
+    tagline: 'MIG / ARC Combined Multi-Phase Smart Inverter',
     isFeatured: true,
     phase: '1/2/3 Phase',
     features: [
-      'Combined professional gasless/gas MIG and manual ARC MMA',
-      'Versatile power unit: Auto adapts to 1, 2, or 3 Phase supplies',
-      'Equipped with microcomputer control unit (MCU) for smart parameter adjustments',
-      'Works with long distance control cable up to 30m',
-      'Equipped with constant current / constant voltage (CC/CV) outputs'
+      'Advanced IGBT Technology, increased duty cycle, more reliable under hot, humid, dusty working environments',
+      'Exclusive Circuit Design, reduces maintenance cost and extends machine life',
+      'Input 1/2/3 Phase combined wide-voltage input adapts automatically',
+      'Supports long-distance control cables up to 30 meters and rod holder cables up to 50 meters',
+      'Equipped with 2T/4T trigger settings, high performance Microcomputer Control Unit (MCU), and CC/CV constant current/voltage outputs'
     ],
     specs: {
       'Input Voltage': 'AC180V~410V 1/2/3PH',
@@ -308,7 +315,7 @@ export const PRODUCTS: Product[] = [
       'MIG TORCH',
       'WIRE FEEDER',
       'EARTH CABLE SET',
-      'C02 REGULATOR WITH FLOWMETER & HEATER'
+      'CO2 REGULATOR WITH FLOWMETER & HEATER'
     ]
   },
   {
@@ -473,6 +480,183 @@ export const PRODUCTS: Product[] = [
     accessories: [
       'P80 Plasma Cutting Manual Air cooled Torch 5meter',
       'Earthing Clamp with cable 2 meter'
+    ]
+  },
+  {
+    id: 'mkg-hosepipe',
+    name: 'MKG ARC EXTREME ISI - 447',
+    model: 'Welding Gas Hose Pipe ID 8MM BP 50 BAR',
+    category: 'accessories',
+    brand: 'MKG',
+    image: mkgGasHosepipe,
+    tagline: 'Supreme Strength In Every Spray - High Pressure Hose',
+    isFeatured: true,
+    phase: 'N/A',
+    features: [
+      'Industrial grade premium Thermoplastic Rubber (TPR) construction',
+      'Extremely high tensile strength for high pressure applications',
+      'ISI - 447 Certified welding standard quality',
+      'Coated protective surface resistant to sparks and abrasions',
+      'Ideal for shielding gases like CO2, Argon, and Oxygen mixtures'
+    ],
+    specs: {
+      'Hose Pipe Model': 'MKG ARC EXTREME ISI - 447',
+      'Inner Diameter (ID)': '8 mm',
+      'Burst Pressure (BP)': '50 BAR',
+      'Material': 'High-strength Thermoplastic Rubber (TPR)',
+      'Available Colors': 'TPR Red, TPR Blue',
+      'Application': 'Welding gas transmission & regulator links',
+      'Durability': 'Oil, heat, and weather resistant jacket'
+    }
+  },
+  {
+    id: 'mkg-mma-250-e',
+    name: 'E-SERIES MMA-250 1/2-Ph',
+    model: 'MMA-250 1/2-Ph',
+    category: 'mma',
+    brand: 'MKG',
+    image: mkgMma250e,
+    tagline: 'Power. Precision. Dual-Voltage MMA Welder',
+    isFeatured: true,
+    phase: '1/2 Phase',
+    features: [
+      'Highly portable compact professional stick welding machine',
+      'True wide-voltage dual-phase compatibility (AC220V / AC380V)',
+      'Inbuilt VRD (Voltage Reduction Device) for complete welder safety',
+      'High rated duty cycle of 60% at 25°C ambient temperature',
+      'Equipped with heavy-duty black carrying handle for easy field work'
+    ],
+    specs: {
+      'Item': 'MMA-250 1/2-Ph',
+      'INPUT POWER SOURCE': '(1P ~ AC 220V | 2P ~ AC 380V) | (±15% 50/60Hz)',
+      'RATED INPUT CURRENT (A)': '20',
+      'RATED INPUT POWER CAPACITY (KVA)': '4.5',
+      'OUTPUT CURRENT RANGE (A)': '0-250',
+      'NO-LOAD VOLTAGE (V)': '62V',
+      'VRD & VRD VOLTAGE': 'Yes & 14V DC',
+      'RATED DUTY CYCLE (%) @25°C': '60',
+      'PROTECTION CLASS': 'IP 21',
+      'INSULATION CLASS': 'F',
+      'MACHINE DIMENSIONS (mm)': '300 x 160 x 240',
+      'BOX PACKING SIZE (mm)': '380 x 245 x 340',
+      'BOX GROSS WEIGHT (Kg)': '5.5',
+      'MACHINE NET WEIGHT (Kg)': '4.5'
+    }
+  },
+  {
+    id: 'mkg-arc-200n',
+    name: 'ARC 200N IGBT',
+    model: 'ARC 200N IGBT',
+    category: 'mma',
+    brand: 'MKG',
+    image: mkgArc200n,
+    tagline: 'Professional High-Frequency Inverter Welding System',
+    isFeatured: false,
+    phase: '1 Phase',
+    features: [
+      'Advanced IGBT inverter control circuit with instant arc strike',
+      'Incredibly lightweight and robust metal casing',
+      'Excellent energy efficiency with a 0.73 power factor',
+      'Ideal for plate thickness from 2.0 to 6.0 mm',
+      'Handles welding rods from diameter 2.0mm to 3.2mm'
+    ],
+    specs: {
+      'INPUT VOLTAGE (V)': 'AC230V ± 15%',
+      'FREQUENCY (HZ)': '50/60',
+      'INPUT POWER CAPACITY (KVA)': '6',
+      'RATED INPUT CURRENT (A)': '43.6',
+      'OUTPUT CURRENT RANGE (A)': '30-200',
+      'NO-LOAD VOLTAGE(V)': '65',
+      'POWER FACTOR': '0.73',
+      'NET WEIGHT (KG)': '8',
+      'DIMENSION (L*W*H) (mm)': '445 x 265 x 345',
+      'PLATE THICKNESS (MM)': '2.0 TO 6.0',
+      'DIAMETER OF ROD (MM)': '2.0 To 3.2'
+    }
+  },
+  {
+    id: 'mkg-mma-500-sic',
+    name: 'MMA-500 SiC 3-PH',
+    model: 'MMA-500SiC',
+    category: 'mma',
+    brand: 'MKG',
+    image: mkgMma500sic,
+    tagline: 'Heavy-Duty 3-Phase Silicon Carbide Site Inverter',
+    isFeatured: true,
+    phase: '3 Phase',
+    features: [
+      'Cutting-edge Silicon Carbide (SiC) semiconductor modules',
+      'Massive 500 Amps continuous output at 100% duty cycle',
+      'Multi-process support: MMA, TIG, MIG/MAG, Carbon Arc Gouging',
+      'Advanced thermal cooling: Air, Water, or Self-Cooling controls',
+      'Full protection: Overheat, Overcurrent, Undervoltage, and Gas Shortage'
+    ],
+    specs: {
+      'Item': 'MMA-500SiC',
+      'Power Frequency (Hz)': '50',
+      'Rated Input Voltage': '3 Phase; 380V±10%',
+      'Rated Input Capacity (KVA)': '21',
+      'Rated Input Current (A)': '75',
+      'Output No-load Voltage': '0-500',
+      'Output Current at 100% Duty Cycle (A)': '500',
+      'Welding Process': 'MMA / TIG / MIG-MAG / Carbon Arc Gouging',
+      'Applicable Welding Rod Diameter': 'Φ2.5 - Φ5.0 mm',
+      'Power Factor': 'Cosφ 0.8',
+      'Quick Protection': 'Overheat, Overcurrent, Undervoltage, Gas Shortage',
+      'Cooling Method': 'Air Cooling / Water Cooling / Self Cooling',
+      'Insulation Grade': 'H',
+      'Enclosure Protection Level': 'IP21S',
+      'Net Weight': '18 kg',
+      'Gross Weight': '19.6 kg',
+      'Dimensions (LxWxH) (mm)': '512.5 x 220 x 398'
+    }
+  },
+  {
+    id: 'mkg-cut-140-sic',
+    name: 'CUT-140 SiC 3-PH',
+    model: 'CUT-140 SiC',
+    category: 'plasma',
+    brand: 'MKG',
+    image: mkgCut140sic,
+    tagline: 'Silicon Carbide (SiC) Heavy Duty Plasma Cutter',
+    isFeatured: true,
+    phase: '3 Phase',
+    features: [
+      'Silicon Carbide technology with continuous 100% duty cycle',
+      'Extreme cutting capability: Clean cut of 30mm, maximum cut of 40mm',
+      'Dual functionality: supports both Plasma Cut and 200A manual MMA arc welding',
+      'Full CNC Table integration compatibility built-in',
+      'Heavy duty steel chassis with protective IP23S class insulation'
+    ],
+    specs: {
+      'Item': 'CUT-140 SiC',
+      'Power Frequency (Hz)': '50',
+      'Rated Input Voltage': '3 Phase, 380V ±10%',
+      'Permissible Input Voltage Range': '340~420 V',
+      'Rated Input Capacity (KVA)': '23',
+      'Rated Input Current (A)': '35',
+      'Output No-load Voltage (V)': '310',
+      'Plasma Cutting Current Range (A)': '25-140',
+      'Manual ARC Welding Current Range (A)': '0-200',
+      'Rated Duty Cycle (40°C)': '100%',
+      'Output Current at 100% Duty Cycle': 'PLASMA-140A / MMA-200A',
+      'Efficiency': '85%',
+      'Power Factor': '0.8',
+      'Clean Cut Thickness (mm)': '30',
+      'Maximum Cut Thickness (mm)': '40',
+      'CNC Compatible': 'YES',
+      'Technology': 'Silicon Carbide Technology',
+      'Welding Process': 'MMA / Plasma CUT',
+      'Cooling Method': 'Air Cooling',
+      'Insulation Class': 'Grade H',
+      'Enclosure Protection Level': 'IP23S',
+      'Net Weight (kg)': '18',
+      'Dimensions (LxWxH) (mm)': '450 x 270 x 380'
+    },
+    accessories: [
+      'P80 Plasma Cutting Manual Air cooled Torch 5meter',
+      'Earthing Clamp with cable 2 meter',
+      'Air Filter Valve (FRL)'
     ]
   }
 ];

@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import HomeView from './components/HomeView';
 import ProductsView from './components/ProductsView';
+import GalleryView from './components/GalleryView';
 import AboutView from './components/AboutView';
 import ContactView from './components/ContactView';
 
@@ -46,6 +47,8 @@ export default function App() {
             setLightboxImage={setLightboxImage}
           />
         );
+      case 'gallery':
+        return <GalleryView setLightboxImage={setLightboxImage} />;
       case 'about':
         return <AboutView />;
       case 'contact':

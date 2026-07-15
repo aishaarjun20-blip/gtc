@@ -13,6 +13,7 @@ export default function Header({ currentPage, setCurrentPage }: HeaderProps) {
   const navItems = [
     { id: 'home', label: 'Home' },
     { id: 'products', label: 'Products' },
+    { id: 'gallery', label: 'Gallery' },
     { id: 'about', label: 'About Us' },
     { id: 'contact', label: 'Contact Us' }
   ];

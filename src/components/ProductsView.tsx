@@ -63,7 +63,8 @@ export default function ProductsView({
     { id: 'mma', label: 'MMA / ARC Inverters' },
     { id: 'tig', label: 'TIG Inverters' },
     { id: 'mig', label: 'MIG Inverters' },
-    { id: 'plasma', label: 'Plasma Cutters' }
+    { id: 'plasma', label: 'Plasma Cutters' },
+    { id: 'accessories', label: 'Hose Pipes & Spares' }
   ];
 
   const phaseFilters = [
@@ -71,7 +72,8 @@ export default function ProductsView({
     { id: '1 Phase', label: '1 Phase (230V)' },
     { id: '1/2 Phase', label: '1/2 Phase (80-560V)' },
     { id: '1/2/3 Phase', label: '1/2/3 Phase (60-560V)' },
-    { id: '3 Phase', label: '3 Phase (380-415V)' }
+    { id: '3 Phase', label: '3 Phase (380-415V)' },
+    { id: 'N/A', label: 'Non-Powered' }
   ];
 
   // Auto scroll to detail if active

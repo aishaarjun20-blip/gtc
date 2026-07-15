@@ -6,14 +6,14 @@ export interface Product {
   id: string;
   name: string;
   model: string;
-  category: 'mma' | 'tig' | 'mig' | 'plasma';
+  category: 'mma' | 'tig' | 'mig' | 'plasma' | 'accessories';
   brand: string;
   image: string;
   tagline?: string;
   features: string[];
   specs: ProductSpec;
   accessories?: string[];
-  phase: '1 Phase' | '3 Phase' | '1/2 Phase' | '1/2/3 Phase';
+  phase: '1 Phase' | '3 Phase' | '1/2 Phase' | '1/2/3 Phase' | 'N/A';
   isFeatured?: boolean;
 }
 

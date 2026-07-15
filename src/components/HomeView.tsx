@@ -365,7 +365,7 @@ export default function HomeView({
                   <div className="grid grid-cols-2 gap-4 text-xs font-mono">
                     <div className="p-3 bg-zinc-900 rounded-lg">
                       <span className="text-zinc-500 block">Monday - Saturday</span>
-                      <span className="text-zinc-200 font-bold block mt-1">10:00 AM - 7:30 PM</span>
+                      <span className="text-zinc-200 font-bold block mt-1">11:00 AM - 7:00 PM</span>
                     </div>
                     <div className="p-3 bg-zinc-900 rounded-lg">
                       <span className="text-zinc-500 block">Sundays</span>
