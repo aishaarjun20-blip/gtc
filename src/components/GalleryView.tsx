@@ -34,6 +34,287 @@ interface PhotoSlot {
   timestamp?: number;
 }
 
+// --- Robust IndexedDB Storage Implementation to prevent QuotaExceededError ---
+const DB_NAME = 'GargTradingGalleryDB';
+const DB_VERSION = 1;
+
+function initDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    if (typeof indexedDB === 'undefined') {
+      reject(new Error('IndexedDB is not supported in this environment'));
+      return;
+    }
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains('uploads')) {
+        db.createObjectStore('uploads', { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains('slots')) {
+        db.createObjectStore('slots', { keyPath: 'id' });
+      }
+    };
+    request.onsuccess = (event) => {
+      resolve((event.target as IDBOpenDBRequest).result);
+    };
+    request.onerror = (event) => {
+      reject((event.target as IDBOpenDBRequest).error);
+    };
+  });
+}
+
+function getAllFromStore<T>(storeName: 'uploads' | 'slots'): Promise<T[]> {
+  return initDB().then((db) => {
+    return new Promise<T[]>((resolve, reject) => {
+      const transaction = db.transaction(storeName, 'readonly');
+      const store = transaction.objectStore(storeName);
+      const request = store.getAll();
+      request.onsuccess = () => {
+        resolve(request.result || []);
+      };
+      request.onerror = () => {
+        reject(request.error);
+      };
+    });
+  });
+}
+
+function saveToStore<T>(storeName: 'uploads' | 'slots', item: T): Promise<void> {
+  return initDB().then((db) => {
+    return new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(storeName, 'readwrite');
+      const store = transaction.objectStore(storeName);
+      const request = store.put(item);
+      request.onsuccess = () => {
+        resolve();
+      };
+      request.onerror = () => {
+        reject(request.error);
+      };
+    });
+  });
+}
+
+function deleteFromStore(storeName: 'uploads' | 'slots', id: string): Promise<void> {
+  return initDB().then((db) => {
+    return new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(storeName, 'readwrite');
+      const store = transaction.objectStore(storeName);
+      const request = store.delete(id);
+      request.onsuccess = () => {
+        resolve();
+      };
+      request.onerror = () => {
+        reject(request.error);
+      };
+    });
+  });
+}
+
+// --- Safe wrappers that fall back to localStorage on exception ---
+async function getUploadsFromDB(): Promise<GalleryItem[]> {
+  try {
+    const dbItems = await getAllFromStore<GalleryItem>('uploads');
+    
+    // Migrate from garg_gallery_uploads localStorage if any
+    const stored = localStorage.getItem('garg_gallery_uploads');
+    if (stored) {
+      try {
+        const lsItems: GalleryItem[] = JSON.parse(stored);
+        if (Array.isArray(lsItems) && lsItems.length > 0) {
+          let migratedAny = false;
+          for (const item of lsItems) {
+            const alreadyExists = dbItems.some(x => x.id === item.id || x.image === item.image);
+            if (!alreadyExists) {
+              await saveToStore('uploads', item);
+              dbItems.push(item);
+              migratedAny = true;
+            }
+          }
+          if (migratedAny) {
+            console.log('Migrated old uploads from localStorage to IndexedDB');
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse or migrate localStorage uploads', e);
+      }
+    }
+
+    // Migrate from garg_gallery_slots localStorage if any
+    const storedSlots = localStorage.getItem('garg_gallery_slots');
+    if (storedSlots) {
+      try {
+        const lsSlots: PhotoSlot[] = JSON.parse(storedSlots);
+        if (Array.isArray(lsSlots) && lsSlots.length > 0) {
+          let migratedAny = false;
+          for (const slot of lsSlots) {
+            if (slot.image) {
+              const slotItemId = `migrated-slot-${slot.id}`;
+              const alreadyExists = dbItems.some(x => x.id === slotItemId || x.image === slot.image);
+              if (!alreadyExists) {
+                const item: GalleryItem = {
+                  id: slotItemId,
+                  title: `Photo Place #${slot.slotNumber}`,
+                  category: 'uploads',
+                  image: slot.image,
+                  description: `Photo migrated from Slot #${slot.slotNumber}.`,
+                  isUserUploaded: true,
+                  timestamp: slot.timestamp || Date.now()
+                };
+                await saveToStore('uploads', item);
+                dbItems.push(item);
+                migratedAny = true;
+              }
+            }
+          }
+          if (migratedAny) {
+            console.log('Migrated old slot photos from localStorage to IndexedDB uploads');
+          }
+        }
+      } catch (e) {
+        console.error('Failed to migrate slot images to uploads', e);
+      }
+    }
+
+    // Also migrate from IndexedDB 'slots' store if any have non-null images
+    try {
+      const dbSlots = await getAllFromStore<PhotoSlot>('slots');
+      if (dbSlots && dbSlots.length > 0) {
+        let migratedAny = false;
+        for (const slot of dbSlots) {
+          if (slot.image) {
+            const slotItemId = `migrated-idb-slot-${slot.id}`;
+            const alreadyExists = dbItems.some(x => x.id === slotItemId || x.image === slot.image);
+            if (!alreadyExists) {
+              const item: GalleryItem = {
+                id: slotItemId,
+                title: `Photo Place #${slot.slotNumber}`,
+                category: 'uploads',
+                image: slot.image,
+                description: `Photo migrated from Slot #${slot.slotNumber}.`,
+                isUserUploaded: true,
+                timestamp: slot.timestamp || Date.now()
+              };
+              await saveToStore('uploads', item);
+              dbItems.push(item);
+              migratedAny = true;
+            }
+          }
+        }
+        if (migratedAny) {
+          console.log('Migrated old slot photos from IndexedDB slots to uploads');
+        }
+      }
+    } catch (e) {
+      console.warn('Could not read/migrate slots from IndexedDB', e);
+    }
+
+    // Sort by timestamp descending
+    return dbItems.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+  } catch (err) {
+    console.warn('IndexedDB read failed for uploads, falling back to localStorage', err);
+    try {
+      const stored = localStorage.getItem('garg_gallery_uploads');
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      console.error('localStorage fallback read failed', e);
+      return [];
+    }
+  }
+}
+
+async function saveUploadToDB(item: GalleryItem): Promise<void> {
+  try {
+    await saveToStore('uploads', item);
+  } catch (err) {
+    console.warn('IndexedDB write failed for uploads, falling back to localStorage', err);
+    try {
+      const stored = localStorage.getItem('garg_gallery_uploads');
+      const list = stored ? JSON.parse(stored) : [];
+      const updated = [item, ...list.filter((x: any) => x.id !== item.id)];
+      localStorage.setItem('garg_gallery_uploads', JSON.stringify(updated));
+    } catch (e) {
+      console.error('localStorage save fallback failed', e);
+    }
+  }
+}
+
+async function deleteUploadFromDB(id: string): Promise<void> {
+  try {
+    await deleteFromStore('uploads', id);
+  } catch (err) {
+    console.warn('IndexedDB delete failed, falling back to localStorage', err);
+    try {
+      const stored = localStorage.getItem('garg_gallery_uploads');
+      if (stored) {
+        const list = JSON.parse(stored);
+        const updated = list.filter((x: any) => x.id !== id);
+        localStorage.setItem('garg_gallery_uploads', JSON.stringify(updated));
+      }
+    } catch (e) {
+      console.error('localStorage delete fallback failed', e);
+    }
+  }
+}
+
+async function getSlotsFromDB(): Promise<PhotoSlot[]> {
+  try {
+    const slots = await getAllFromStore<PhotoSlot>('slots');
+    if (slots && slots.length > 0) {
+      return [...slots].sort((a, b) => a.slotNumber - b.slotNumber);
+    }
+    const defaultSlots: PhotoSlot[] = Array.from({ length: 20 }, (_, i) => ({
+      id: `slot-${i + 1}`,
+      slotNumber: i + 1,
+      image: null,
+    }));
+    try {
+      await Promise.all(defaultSlots.map(s => saveToStore('slots', s)));
+    } catch (e) {
+      console.warn('Failed to pre-populate slots in IndexedDB', e);
+    }
+    return defaultSlots;
+  } catch (err) {
+    console.warn('IndexedDB read failed for slots, falling back to localStorage', err);
+    try {
+      const storedSlots = localStorage.getItem('garg_gallery_slots');
+      if (storedSlots) {
+        return JSON.parse(storedSlots);
+      }
+      const defaultSlots: PhotoSlot[] = Array.from({ length: 20 }, (_, i) => ({
+        id: `slot-${i + 1}`,
+        slotNumber: i + 1,
+        image: null,
+      }));
+      localStorage.setItem('garg_gallery_slots', JSON.stringify(defaultSlots));
+      return defaultSlots;
+    } catch (e) {
+      console.error('localStorage slots read fallback failed', e);
+      return Array.from({ length: 20 }, (_, i) => ({
+        id: `slot-${i + 1}`,
+        slotNumber: i + 1,
+        image: null,
+      }));
+    }
+  }
+}
+
+async function saveSlotToDB(slot: PhotoSlot): Promise<void> {
+  try {
+    await saveToStore('slots', slot);
+  } catch (err) {
+    console.warn('IndexedDB save failed for slot, falling back to localStorage', err);
+    try {
+      const storedSlots = localStorage.getItem('garg_gallery_slots');
+      const slots: PhotoSlot[] = storedSlots ? JSON.parse(storedSlots) : [];
+      const updated = slots.map(s => s.id === slot.id ? slot : s);
+      localStorage.setItem('garg_gallery_slots', JSON.stringify(updated));
+    } catch (e) {
+      console.error('localStorage slot save fallback failed', e);
+    }
+  }
+}
+
 interface GalleryViewProps {
   setLightboxImage: (image: { src: string, alt: string, title?: string } | null) => void;
 }
@@ -42,7 +323,6 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [uploadedPhotos, setUploadedPhotos] = useState<GalleryItem[]>([]);
-  const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [category, setCategory] = useState<'showroom' | 'machines' | 'accessories' | 'uploads'>('uploads');
@@ -124,85 +404,12 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
     },
   ];
 
-  // Load user uploads from localStorage
+  // Load user uploads and custom slot photos from IndexedDB with safe local fallback
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('garg_gallery_uploads');
-      if (stored) {
-        setUploadedPhotos(JSON.parse(stored));
-      }
-    } catch (e) {
-      console.error('Failed to parse gallery uploads from storage', e);
-    }
-
-    try {
-      const storedSlots = localStorage.getItem('garg_gallery_slots');
-      if (storedSlots) {
-        setPhotoSlots(JSON.parse(storedSlots));
-      } else {
-        const defaultSlots: PhotoSlot[] = Array.from({ length: 20 }, (_, i) => ({
-          id: `slot-${i + 1}`,
-          slotNumber: i + 1,
-          image: null,
-        }));
-        localStorage.setItem('garg_gallery_slots', JSON.stringify(defaultSlots));
-        setPhotoSlots(defaultSlots);
-      }
-    } catch (e) {
-      console.error('Failed to parse gallery slots from storage', e);
-    }
+    getUploadsFromDB().then((uploads) => {
+      setUploadedPhotos(uploads);
+    });
   }, []);
-
-  // Save user uploads helper
-  const saveToStorage = (updatedList: GalleryItem[]) => {
-    localStorage.setItem('garg_gallery_uploads', JSON.stringify(updatedList));
-    setUploadedPhotos(updatedList);
-  };
-
-  const handleSlotUpload = (slotId: string, file: File) => {
-    if (!file.type.startsWith('image/')) {
-      triggerNotification('error', 'Only image files (PNG, JPG, JPEG) are allowed.');
-      return;
-    }
-    // Limit to 2.5MB to prevent filling up local storage
-    if (file.size > 2.5 * 1024 * 1024) {
-      triggerNotification('error', 'Image size exceeds 2.5MB. Please choose a smaller image.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64Image = e.target?.result as string;
-      const updatedSlots = photoSlots.map(slot => {
-        if (slot.id === slotId) {
-          return {
-            ...slot,
-            image: base64Image,
-            timestamp: Date.now()
-          };
-        }
-        return slot;
-      });
-      setPhotoSlots(updatedSlots);
-      localStorage.setItem('garg_gallery_slots', JSON.stringify(updatedSlots));
-      triggerNotification('success', `Photo successfully saved in Slot #${photoSlots.find(s => s.id === slotId)?.slotNumber}!`);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleClearSlot = (slotId: string, slotNumber: number) => {
-    if (window.confirm(`Are you sure you want to clear the photo in Slot #${slotNumber}?`)) {
-      const updatedSlots = photoSlots.map(slot => {
-        if (slot.id === slotId) {
-          return { ...slot, image: null, timestamp: undefined };
-        }
-        return slot;
-      });
-      setPhotoSlots(updatedSlots);
-      localStorage.setItem('garg_gallery_slots', JSON.stringify(updatedSlots));
-      triggerNotification('success', `Slot #${slotNumber} has been cleared.`);
-    }
-  };
 
   // Trigger brief alert/notification
   const triggerNotification = (type: 'success' | 'error', message: string) => {
@@ -218,7 +425,6 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
     { id: 'showroom', label: 'Showroom & Stock' },
     { id: 'machines', label: 'Welding Machines' },
     { id: 'accessories', label: 'Hose & Spares' },
-    { id: 'slots', label: '20 Photo Places' },
     { id: 'uploads', label: 'My Uploaded Photos' },
   ];
 
@@ -231,11 +437,7 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
     return item.category === activeFilter;
   });
 
-  const displayCount = activeFilter === 'slots' 
-    ? 20 
-    : (activeFilter === 'all' 
-        ? filteredItems.length + 20 
-        : filteredItems.length);
+  const displayCount = filteredItems.length;
 
   // Handle Drag & Drop events
   const handleDragOver = (e: React.DragEvent) => {
@@ -252,7 +454,7 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
       triggerNotification('error', 'Only image files (PNG, JPG, JPEG) are allowed.');
       return;
     }
-    // Limit to 2.5MB to prevent filling up the 5MB browser localStorage quota quickly
+    // Limit to 2.5MB to preserve local performance
     if (file.size > 2.5 * 1024 * 1024) {
       triggerNotification('error', 'Image size exceeds 2.5MB. Please upload a compressed or smaller image.');
       return;
@@ -306,7 +508,8 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
     };
 
     const updatedList = [newItem, ...uploadedPhotos];
-    saveToStorage(updatedList);
+    setUploadedPhotos(updatedList);
+    saveUploadToDB(newItem);
     
     // Reset form states
     setTitle('');
@@ -325,7 +528,8 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
   const handleDeleteItem = (id: string, itemTitle: string) => {
     if (window.confirm(`Are you sure you want to delete "${itemTitle}" from your gallery?`)) {
       const updatedList = uploadedPhotos.filter(item => item.id !== id);
-      saveToStorage(updatedList);
+      setUploadedPhotos(updatedList);
+      deleteUploadFromDB(id);
       triggerNotification('success', `"${itemTitle}" was deleted.`);
     }
   };
@@ -542,7 +746,7 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
           </div>
 
           {/* Dynamic Feed Grid */}
-          {activeFilter !== 'slots' && filteredItems.length === 0 ? (
+          {filteredItems.length === 0 ? (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -574,220 +778,99 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
               )}
             </motion.div>
           ) : (
-            <>
-              {activeFilter !== 'slots' && (
-                <motion.div 
-                  layout
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                  id="gallery-images-grid"
-                >
-                  <AnimatePresence mode="popLayout">
-                    {filteredItems.map((item) => (
-                      <motion.div
-                        layout
-                        key={item.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ duration: 0.3 }}
-                        className="bg-white rounded-2xl overflow-hidden border border-zinc-200 hover:border-orange-500/20 shadow-2xs hover:shadow-lg transition-all flex flex-col group relative"
-                      >
-                        {/* Visual Panel frame */}
-                        <div className="relative aspect-video bg-zinc-50 overflow-hidden shrink-0">
-                          <img 
-                            src={item.image} 
-                            alt={item.title} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            referrerPolicy="no-referrer"
-                          />
+            <motion.div 
+              layout
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              id="gallery-images-grid"
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredItems.map((item) => (
+                  <motion.div
+                    layout
+                    key={item.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-white rounded-2xl overflow-hidden border border-zinc-200 hover:border-orange-500/20 shadow-2xs hover:shadow-lg transition-all flex flex-col group relative"
+                  >
+                    {/* Visual Panel frame */}
+                    <div className="relative aspect-video bg-zinc-50 overflow-hidden shrink-0">
+                      <img 
+                        src={item.image} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        referrerPolicy="no-referrer"
+                      />
+                      
+                      {/* Interactive click overlay with blur glass effect */}
+                      <div className="absolute inset-0 bg-zinc-950/25 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-10">
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setLightboxImage({ src: item.image, alt: item.description, title: item.title })}
+                            className="bg-white hover:bg-orange-600 hover:text-white text-zinc-900 px-4 py-2.5 rounded-xl shadow-md font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                            title="Zoom High-Res"
+                          >
+                            <Eye className="w-4 h-4" />
+                            <span>View Full Size</span>
+                          </button>
                           
-                          {/* Interactive click overlay with blur glass effect */}
-                          <div className="absolute inset-0 bg-zinc-950/25 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-10">
-                            <div className="flex gap-2">
-                              <button
-                                type="button"
-                                onClick={() => setLightboxImage({ src: item.image, alt: item.description, title: item.title })}
-                                className="bg-white hover:bg-orange-600 hover:text-white text-zinc-900 px-4 py-2.5 rounded-xl shadow-md font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-                                title="Zoom High-Res"
-                              >
-                                <Eye className="w-4 h-4" />
-                                <span>View Full Size</span>
-                              </button>
-                              
-                              {item.isUserUploaded && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteItem(item.id, item.title)}
-                                  className="bg-zinc-900 hover:bg-red-600 text-white p-2.5 rounded-xl shadow-md transition-colors cursor-pointer flex items-center justify-center"
-                                  title="Delete Upload"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Tag stamp badge */}
-                          <div className="absolute top-4 left-4 bg-zinc-950/80 backdrop-blur-xs text-white text-[9px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 rounded-md shadow-sm z-10 flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                            <span>{item.category === 'uploads' ? 'My Upload' : item.category.toUpperCase()}</span>
-                          </div>
-
-                          {/* Delete icon for mobile visible immediately */}
                           {item.isUserUploaded && (
-                            <div className="absolute top-4 right-4 z-10 block lg:hidden">
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteItem(item.id, item.title)}
-                                className="bg-red-600 text-white p-2 rounded-full shadow-md hover:bg-red-700 transition-colors cursor-pointer"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteItem(item.id, item.title)}
+                              className="bg-zinc-900 hover:bg-red-600 text-white p-2.5 rounded-xl shadow-md transition-colors cursor-pointer flex items-center justify-center"
+                              title="Delete Upload"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           )}
                         </div>
-
-                        {/* Content Panel */}
-                        <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                          <div className="space-y-1">
-                            <h3 className="font-display font-black text-sm sm:text-base text-zinc-900 tracking-tight leading-snug">
-                              {item.title}
-                            </h3>
-                            <p className="text-zinc-500 text-xs leading-relaxed font-sans line-clamp-2">
-                              {item.description}
-                            </p>
-                          </div>
-
-                          <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 pt-2 border-t border-zinc-100">
-                            <span>Source: {item.isUserUploaded ? 'Your Device' : 'HQ Factory Showroom'}</span>
-                            {item.timestamp && (
-                              <span>{new Date(item.timestamp).toLocaleDateString()}</span>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </motion.div>
-              )}
-
-              {/* SECTION SEPARATOR AND INTERACTIVE PHOTO PLACES FOR 'all' OR 'slots' */}
-              {(activeFilter === 'all' || activeFilter === 'slots') && (
-                <div className="space-y-8 mt-12">
-                  {activeFilter === 'all' && (
-                    <div className="pt-12 pb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-px bg-zinc-200 flex-1" />
-                        <h2 className="font-display font-black text-xl text-zinc-900 px-4 whitespace-nowrap flex items-center gap-2 animate-pulse">
-                          <Camera className="w-5 h-5 text-orange-600" />
-                          <span>Interactive Photo Places (20 Slots)</span>
-                        </h2>
-                        <div className="h-px bg-zinc-200 flex-1" />
                       </div>
-                      <p className="text-zinc-500 text-xs text-center mt-2 max-w-md mx-auto">
-                        Click on any slot below to instantly upload and display photos without filling in any forms.
-                      </p>
+
+                      {/* Tag stamp badge */}
+                      <div className="absolute top-4 left-4 bg-zinc-950/80 backdrop-blur-xs text-white text-[9px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 rounded-md shadow-sm z-10 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                        <span>{item.category === 'uploads' ? 'My Upload' : item.category.toUpperCase()}</span>
+                      </div>
+
+                      {/* Delete icon for mobile visible immediately */}
+                      {item.isUserUploaded && (
+                        <div className="absolute top-4 right-4 z-10 block lg:hidden">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteItem(item.id, item.title)}
+                            className="bg-red-600 text-white p-2 rounded-full shadow-md hover:bg-red-700 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
 
-                  <motion.div 
-                    layout
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                    id="gallery-slots-grid"
-                  >
-                    {photoSlots.map((slot) => (
-                      <motion.div
-                        layout
-                        key={slot.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.2 }}
-                        className="relative"
-                      >
-                        {slot.image ? (
-                          <div className="bg-white rounded-2xl overflow-hidden border border-zinc-200 hover:border-orange-500/20 shadow-2xs hover:shadow-lg transition-all flex flex-col group h-full">
-                            <div className="relative aspect-video bg-zinc-50 overflow-hidden shrink-0">
-                              <img 
-                                src={slot.image} 
-                                alt={`Photo Slot ${slot.slotNumber}`} 
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                referrerPolicy="no-referrer"
-                              />
-                              <div className="absolute inset-0 bg-zinc-950/25 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-10">
-                                <div className="flex gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => setLightboxImage({ src: slot.image!, alt: `Photo Slot #${slot.slotNumber}`, title: `Photo Place #${slot.slotNumber}` })}
-                                    className="bg-white hover:bg-orange-600 hover:text-white text-zinc-900 px-4 py-2.5 rounded-xl shadow-md font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-                                  >
-                                    <Eye className="w-4 h-4" />
-                                    <span>View Full Size</span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleClearSlot(slot.id, slot.slotNumber)}
-                                    className="bg-zinc-900 hover:bg-red-600 text-white p-2.5 rounded-xl shadow-md transition-colors cursor-pointer flex items-center justify-center"
-                                    title="Clear Slot"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </div>
+                    {/* Content Panel */}
+                    <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                      <div className="space-y-1">
+                        <h3 className="font-display font-black text-sm sm:text-base text-zinc-900 tracking-tight leading-snug">
+                          {item.title}
+                        </h3>
+                        <p className="text-zinc-500 text-xs leading-relaxed font-sans line-clamp-2">
+                          {item.description}
+                        </p>
+                      </div>
 
-                              <div className="absolute top-4 left-4 bg-zinc-950/80 backdrop-blur-xs text-white text-[9px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 rounded-md shadow-sm z-10 flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                                <span>Slot #{slot.slotNumber}</span>
-                              </div>
-                            </div>
-                            <div className="p-5 flex-1 flex flex-col justify-between">
-                              <div className="space-y-1">
-                                <h3 className="font-display font-black text-sm sm:text-base text-zinc-900 tracking-tight leading-snug">
-                                  Photo Place #{slot.slotNumber}
-                                </h3>
-                                <p className="text-zinc-500 text-xs font-sans">
-                                  Quick photo uploaded directly into Slot #{slot.slotNumber} without manual specification.
-                                </p>
-                              </div>
-                              <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 pt-3 mt-3 border-t border-zinc-100">
-                                <span>Direct Slot Upload</span>
-                                {slot.timestamp && (
-                                  <span>{new Date(slot.timestamp).toLocaleDateString()}</span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="border-2 border-dashed border-zinc-200 hover:border-orange-500/50 bg-white hover:bg-zinc-50/50 transition-all rounded-2xl flex flex-col items-center justify-center p-6 text-center h-[280px] relative overflow-hidden group">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-15"
-                              onChange={(e) => {
-                                if (e.target.files && e.target.files[0]) {
-                                  handleSlotUpload(slot.id, e.target.files[0]);
-                                }
-                              }}
-                            />
-                            <div className="w-12 h-12 bg-zinc-50 group-hover:bg-orange-50 text-zinc-400 group-hover:text-orange-600 rounded-full flex items-center justify-center mb-3 transition-colors shadow-2xs">
-                              <Camera className="w-5 h-5" />
-                            </div>
-                            <h4 className="font-display font-black text-sm text-zinc-900 tracking-tight">
-                              Photo Place #{slot.slotNumber}
-                            </h4>
-                            <p className="text-zinc-500 text-xs max-w-xs mt-1 font-sans">
-                              Click to upload photo here
-                            </p>
-                            <span className="text-[9px] font-mono text-zinc-400 mt-2 bg-zinc-100 px-2 py-0.5 rounded-sm">
-                              No specification needed
-                            </span>
-                          </div>
+                      <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 pt-2 border-t border-zinc-100">
+                        <span>Source: {item.isUserUploaded ? 'Your Device' : 'HQ Factory Showroom'}</span>
+                        {item.timestamp && (
+                          <span>{new Date(item.timestamp).toLocaleDateString()}</span>
                         )}
-                      </motion.div>
-                    ))}
+                      </div>
+                    </div>
                   </motion.div>
-                </div>
-              )}
-            </>
+                ))}
+              </AnimatePresence>
+            </motion.div>
           )}
 
         </section>
