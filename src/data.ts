@@ -2,7 +2,7 @@ import { Product } from './types';
 
 import mkgArcWelder from './assets/images/mkg_arc_welder_1783838078581.jpg';
 import mmaBlackWelder from './assets/images/mma_black_welder_1783838095890.jpg';
-import mmaYellowGrey from './assets/images/regenerated_image_1783840847264.png';
+import mmaYellowGrey from './assets/images/regenerated_image_1784196806440.jpg';
 import mma400i3ph from './assets/images/regenerated_image_1783841197583.jpg';
 import mkgTigWelder from './assets/images/mkg_tig_welder_1783838129019.jpg';
 import mkgMigWelder from './assets/images/mkg_mig_welder_1783838145697.jpg';
