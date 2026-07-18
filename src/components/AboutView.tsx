@@ -134,10 +134,17 @@ export default function AboutView() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
             {BRANDS.map((b) => (
-              <div key={b.name} className="p-3 bg-zinc-950 rounded-xl border border-zinc-800 text-zinc-300">
+              <a 
+                key={b.name} 
+                href={b.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 bg-zinc-950 rounded-xl border border-zinc-800 hover:border-orange-500/80 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-zinc-300 flex flex-col justify-center items-center cursor-pointer select-none"
+                title={`Visit official website of ${b.name}`}
+              >
                 <span className="font-display font-black text-orange-500 text-sm tracking-widest block">{b.logoText}</span>
-                <span className="text-[10px] font-mono text-zinc-500 block mt-0.5">{b.name}</span>
-              </div>
+                <span className="text-[10px] font-mono text-zinc-400 block mt-1 uppercase font-bold">{b.name}</span>
+              </a>
             ))}
           </div>
         </section>

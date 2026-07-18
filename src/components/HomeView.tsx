@@ -15,6 +15,63 @@ interface HomeViewProps {
   setLightboxImage: (image: { src: string, alt: string, title?: string } | null) => void;
 }
 
+function BrandCard({ brand }: { brand: typeof BRANDS[0]; key?: string | number }): React.JSX.Element {
+  const [imgFailed, setImgFailed] = React.useState(false);
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLAnchorElement>) => {
+    if (e.key === 'Enter') {
+      // Allow default click action to open link in new tab
+    }
+  };
+
+  return (
+    <a
+      href={brand.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      onKeyDown={handleKeyPress}
+      className="group relative bg-white rounded-2xl p-6 border border-zinc-200/80 hover:border-orange-500 shadow-2xs hover:shadow-lg transition-all duration-300 ease-out flex flex-col justify-between items-center text-center cursor-pointer min-h-[160px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 hover:-translate-y-1.5"
+      id={`brand-card-${brand.name.toLowerCase().replace(/\s+/g, '-')}`}
+      title={`Visit official website of ${brand.name}`}
+    >
+      <div className="w-full flex-1 flex items-center justify-center min-h-[70px]">
+        {!imgFailed ? (
+          <img
+            src={brand.logo}
+            alt={`${brand.name} official logo`}
+            loading="lazy"
+            onError={() => setImgFailed(true)}
+            className="max-h-11 max-w-[85%] object-contain select-none opacity-85 group-hover:opacity-100 transition-opacity duration-300 filter grayscale group-hover:grayscale-0"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <span className="font-display font-black text-zinc-400 group-hover:text-orange-600 text-xl tracking-wider transition-colors select-none">
+            {brand.logoText}
+          </span>
+        )}
+      </div>
+      
+      <div className="mt-3 w-full">
+        <h4 className="text-zinc-900 font-bold text-xs uppercase tracking-wider font-mono">
+          {brand.name}
+        </h4>
+        {brand.description && (
+          <p className="text-[10px] text-zinc-500 font-sans mt-1 leading-relaxed group-hover:text-zinc-700 transition-colors line-clamp-2">
+            {brand.description}
+          </p>
+        )}
+      </div>
+
+      {/* External Link Indicator */}
+      <span className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <svg className="w-3.5 h-3.5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </span>
+    </a>
+  );
+}
+
 export default function HomeView({ 
   setCurrentPage, 
   setSelectedProductId, 
@@ -284,23 +341,9 @@ export default function HomeView({
             Bringing elite heavy tools, special welding materials, and precision safety equipment to the Indian industrial market.
           </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6" id="brands-support-grid">
             {BRANDS.map((b) => (
-              <div 
-                key={b.name}
-                onClick={() => setCurrentPage('products')}
-                className="bg-white rounded-xl p-5 border border-zinc-100 hover:border-orange-500/30 transition-all cursor-pointer text-center group shadow-2xs hover:shadow-md"
-              >
-                <div className="h-10 flex items-center justify-center font-display font-black text-zinc-400 group-hover:text-orange-600 text-lg tracking-wider transition-colors">
-                  {b.logoText}
-                </div>
-                <div className="mt-1 text-[10px] font-mono text-zinc-400 font-semibold truncate leading-none">
-                  {b.name}
-                </div>
-                <p className="text-[9px] text-zinc-500 font-sans mt-1.5 leading-tight group-hover:text-zinc-600 transition-colors line-clamp-1">
-                  {b.description}
-                </p>
-              </div>
+              <BrandCard key={b.name} brand={b} />
             ))}
           </div>
         </div>
