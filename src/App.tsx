@@ -79,7 +79,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-50 selection:bg-orange-500 selection:text-white" id="gtc-app-root">
+    <div className="flex flex-col min-h-screen bg-[#0c0c0e] text-[#f8f7f4] selection:bg-[#ff4d00] selection:text-black" id="gtc-app-root">
       {/* Navigation Header */}
       <Header currentPage={currentPage} setCurrentPage={handleSetPage} />
 
@@ -110,22 +110,22 @@ export default function App() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 10 }}
               transition={{ duration: 0.2 }}
-              className="bg-white rounded-2xl shadow-xl border border-zinc-200 p-4 w-72 space-y-3"
+              className="bg-zinc-950 rounded-2xl shadow-2xl border border-zinc-800/80 p-4 w-72 space-y-3 backdrop-blur-md"
             >
-              <div className="flex items-center justify-between pb-2 border-b border-zinc-100">
+              <div className="flex items-center justify-between pb-2 border-b border-zinc-800/60">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-mono font-black uppercase text-emerald-600">WhatsApp Connect</span>
+                  <span className="text-xs font-mono font-black uppercase text-emerald-400">WhatsApp Connect</span>
                 </div>
                 <button 
                   onClick={() => setShowWhatsAppPopup(false)}
-                  className="text-zinc-400 hover:text-zinc-600 text-xs font-bold"
+                  className="text-zinc-500 hover:text-zinc-300 text-xs font-bold cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-zinc-400">
                 Click below to start an instant WhatsApp chat with our managing team:
               </p>
 
@@ -135,15 +135,15 @@ export default function App() {
                   target="_blank" 
                   rel="noopener noreferrer"
                   onClick={() => setShowWhatsAppPopup(false)}
-                  className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-emerald-50 border border-transparent hover:border-emerald-200 transition-all group"
+                  className="flex items-center gap-3 p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800/50 hover:border-emerald-500/30 hover:bg-emerald-950/20 transition-all group"
                 >
-                  <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                  <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                     <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                       <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.413 9.863-9.83.001-2.624-1.018-5.09-2.868-6.942-1.851-1.852-4.314-2.871-6.931-2.872-5.438 0-9.863 4.414-9.866 9.833-.001 1.902.497 3.754 1.445 5.378l-.988 3.602 3.693-.972zm11.752-5.462c-.324-.162-1.92-.949-2.219-1.058-.299-.108-.517-.162-.734.162-.217.324-.838 1.058-1.026 1.274-.188.217-.377.243-.701.081-.324-.162-1.371-.505-2.611-1.612-.964-.86-1.614-1.923-1.802-2.247-.188-.324-.02-.5-.182-.661-.146-.146-.324-.378-.486-.568-.162-.189-.217-.324-.324-.54-.108-.217-.054-.405-.027-.568.027-.162.217-.513.324-.675.108-.162.145-.27.217-.405.072-.135.036-.253-.018-.36-.054-.108-.517-1.244-.709-1.703-.188-.451-.377-.39-.517-.397-.135-.007-.29-.007-.446-.007-.156 0-.41.059-.624.288-.214.23-.817.8-.817 1.95s.838 2.259.953 2.417c.115.158 1.65 2.518 3.999 3.53.559.241 1.002.385 1.343.493.563.18 1.077.154 1.482.094.453-.068 1.92-.786 2.19-1.505.27-.72.27-1.334.189-1.463-.081-.13-.298-.21-.622-.372z" />
                     </svg>
                   </div>
                   <div className="text-left">
-                    <div className="text-xs font-bold text-zinc-800">Mohit Agarwal</div>
+                    <div className="text-xs font-bold text-zinc-100 group-hover:text-emerald-400 transition-colors">Mohit Agarwal</div>
                     <div className="text-[10px] text-zinc-400 font-mono">Retail Sales & General Inquiries</div>
                   </div>
                 </a>
@@ -153,16 +153,16 @@ export default function App() {
                   target="_blank" 
                   rel="noopener noreferrer"
                   onClick={() => setShowWhatsAppPopup(false)}
-                  className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-emerald-50 border border-transparent hover:border-emerald-200 transition-all group"
+                  className="flex items-center gap-3 p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800/50 hover:border-emerald-500/30 hover:bg-emerald-950/20 transition-all group"
                 >
-                  <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                  <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                     <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                       <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.413 9.863-9.83.001-2.624-1.018-5.09-2.868-6.942-1.851-1.852-4.314-2.871-6.931-2.872-5.438 0-9.863 4.414-9.866 9.833-.001 1.902.497 3.754 1.445 5.378l-.988 3.602 3.693-.972zm11.752-5.462c-.324-.162-1.92-.949-2.219-1.058-.299-.108-.517-.162-.734.162-.217.324-.838 1.058-1.026 1.274-.188.217-.377.243-.701.081-.324-.162-1.371-.505-2.611-1.612-.964-.86-1.614-1.923-1.802-2.247-.188-.324-.02-.5-.182-.661-.146-.146-.324-.378-.486-.568-.162-.189-.217-.324-.324-.54-.108-.217-.054-.405-.027-.568.027-.162.217-.513.324-.675.108-.162.145-.27.217-.405.072-.135.036-.253-.018-.36-.054-.108-.517-1.244-.709-1.703-.188-.451-.377-.39-.517-.397-.135-.007-.29-.007-.446-.007-.156 0-.41.059-.624.288-.214.23-.817.8-.817 1.95s.838 2.259.953 2.417c.115.158 1.65 2.518 3.999 3.53.559.241 1.002.385 1.343.493.563.18 1.077.154 1.482.094.453-.068 1.92-.786 2.19-1.505.27-.72.27-1.334.189-1.463-.081-.13-.298-.21-.622-.372z" />
                     </svg>
                   </div>
                   <div className="text-left">
-                    <div className="text-xs font-bold text-zinc-800">Sunil Agarwal</div>
-                    <div className="text-[10px] text-zinc-400 font-mono">Wholesale & Technical Quotes</div>
+                    <div className="text-xs font-bold text-zinc-100 group-hover:text-emerald-400 transition-colors">Sunil Agarwal</div>
+                    <div className="text-[10px] text-zinc-500 font-mono">Wholesale & Technical Quotes</div>
                   </div>
                 </a>
               </div>
