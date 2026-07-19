@@ -7,6 +7,22 @@ import {
 
 // Import local premium assets
 import gargTradingHero from '../assets/images/garg_trading_hero_1783838198658.jpg';
+import migTrolleyFeeder from '../assets/images/mig_trolley_feeder_1783838166873.jpg';
+import mkgArc200n from '../assets/images/mkg_arc_200n_1784119221028.jpg';
+import mkgArcWelder from '../assets/images/mkg_arc_welder_1783838078581.jpg';
+import mkgCut140sic from '../assets/images/mkg_cut_140_sic_1784119245796.jpg';
+import mkgCutSic from '../assets/images/mkg_cut_sic_1783838643145.jpg';
+import mkgGasHosepipe from '../assets/images/mkg_gas_hosepipe_1784119192764.jpg';
+import mkgMigSic from '../assets/images/mkg_mig_sic_1783838626394.jpg';
+import mkgMigWelder from '../assets/images/mkg_mig_welder_1783838145697.jpg';
+import mkgMma250e from '../assets/images/mkg_mma_250_e_1784119208150.jpg';
+import mkgMma500sic from '../assets/images/mkg_mma_500_sic_1784119233192.jpg';
+import mkgMmaSic from '../assets/images/mkg_mma_sic_1783838608406.jpg';
+import mkgTigWelder from '../assets/images/mkg_tig_welder_1783838129019.jpg';
+import mma400stWelder from '../assets/images/mma_400st_welder_1783840646987.jpg';
+import mmaBlackWelder from '../assets/images/mma_black_welder_1783838095890.jpg';
+import mmaYellowGrey from '../assets/images/mma_yellow_grey_1783838114397.jpg';
+import plasmaCutter from '../assets/images/plasma_cutter_1783838182629.jpg';
 
 interface GalleryItem {
   id: string;
@@ -47,11 +63,155 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
       brand: 'MKG Premium',
       description: 'Our primary retail outlet at 40 Strand Road, Ground Floor, Room No. 1, Kolkata. Populated with heavy machine inventory, cutting units, safety kits, and ready-to-ship accessories.',
       specs: 'Strand Road, Kolkata',
+    },
+    {
+      id: 'def-mig-trolley-feeder',
+      title: 'mig_trolley_feeder',
+      category: 'machines',
+      image: migTrolleyFeeder,
+      brand: 'MKG',
+      description: 'Heavy duty separate wire feeder system with industrial trolley wheels for high mobility on the shop floor.',
+      specs: '3 Phase, Heavy Duty',
+    },
+    {
+      id: 'def-mkg-arc-200n',
+      title: 'mkg_arc_200n',
+      category: 'machines',
+      image: mkgArc200n,
+      brand: 'MKG',
+      description: 'Compact IGBT inverter arc welding machine, highly portable and energy-efficient for onsite jobs.',
+      specs: '1 Phase, 200 Amps',
+    },
+    {
+      id: 'def-mkg-arc-welder',
+      title: 'mkg_arc_welder',
+      category: 'machines',
+      image: mkgArcWelder,
+      brand: 'MKG',
+      description: 'Premium MOSFET inverter arc welding power source for stable arc and low spatter.',
+      specs: '1 Phase, MOSFET Core',
+    },
+    {
+      id: 'def-mkg-cut-140-sic',
+      title: 'mkg_cut_140_sic',
+      category: 'catalog',
+      image: mkgCut140sic,
+      brand: 'MKG',
+      description: 'Next-generation Silicon Carbide (SiC) high capacity plasma cutting and MMA manual arc dual-use flyer.',
+      specs: '3 Phase, SiC Core',
+    },
+    {
+      id: 'def-mkg-cut-sic',
+      title: 'mkg_cut_sic',
+      category: 'catalog',
+      image: mkgCutSic,
+      brand: 'MKG',
+      description: 'Commercial catalog flyer for Silicon Carbide series heavy-duty inverter plasma cutter systems.',
+      specs: 'SiC Tech Catalog',
+    },
+    {
+      id: 'def-mkg-gas-hosepipe',
+      title: 'mkg_gas_hosepipe',
+      category: 'accessories',
+      image: mkgGasHosepipe,
+      brand: 'MKG',
+      description: 'ISI-447 certified premium high pressure thermoplastic rubber gas hose pipe for shielding gas mixtures.',
+      specs: '8mm ID, 50 BAR BP',
+    },
+    {
+      id: 'def-mkg-mig-sic',
+      title: 'mkg_mig_sic',
+      category: 'catalog',
+      image: mkgMigSic,
+      brand: 'MKG',
+      description: 'Official flyer for the Silicon Carbide high performance multi-process MIG/MAG welding systems.',
+      specs: 'MIG SiC Flyer',
+    },
+    {
+      id: 'def-mkg-mig-welder',
+      title: 'mkg_mig_welder',
+      category: 'machines',
+      image: mkgMigWelder,
+      brand: 'MKG',
+      description: 'Advanced combined MIG/MAG and manual metal arc (MMA) inverter welding machine with 2T/4T modes.',
+      specs: '1/2/3 Phase, MCU Core',
+    },
+    {
+      id: 'def-mkg-mma-250-e',
+      title: 'mkg_mma_250_e',
+      category: 'machines',
+      image: mkgMma250e,
+      brand: 'MKG',
+      description: 'Compact E-Series wide-voltage stick welder with integrated safety VRD loops.',
+      specs: '1/2 Phase, Portable',
+    },
+    {
+      id: 'def-mkg-mma-500-sic',
+      title: 'mkg_mma_500_sic',
+      category: 'machines',
+      image: mkgMma500sic,
+      brand: 'MKG',
+      description: 'High-power Silicon Carbide 500 Amps heavy duty industrial site welding inverter.',
+      specs: '3 Phase, 500 Amps',
+    },
+    {
+      id: 'def-mkg-mma-sic',
+      title: 'mkg_mma_sic',
+      category: 'catalog',
+      image: mkgMmaSic,
+      brand: 'MKG',
+      description: 'Flyer page demonstrating Silicon Carbide (SiC) technology advantages in MMA welding machines.',
+      specs: 'MMA SiC Flyer',
+    },
+    {
+      id: 'def-mkg-tig-welder',
+      title: 'mkg_tig_welder',
+      category: 'machines',
+      image: mkgTigWelder,
+      brand: 'MKG',
+      description: 'Industrial heavy duty high-frequency combined TIG and manual arc welding power source.',
+      specs: '3 Phase, HF Ignition',
+    },
+    {
+      id: 'def-mma-400st-welder',
+      title: 'mma_400st_welder',
+      category: 'machines',
+      image: mma400stWelder,
+      brand: 'MKG',
+      description: 'Heavy duty wide voltage manual metal arc (MMA) welding inverter for extreme fields.',
+      specs: '1/2/3 Phase, AC60-560V',
+    },
+    {
+      id: 'def-mma-black-welder',
+      title: 'mma_black_welder',
+      category: 'machines',
+      image: mmaBlackWelder,
+      brand: 'MKG',
+      description: 'Advanced wide voltage IGBT inverter manual arc welder with hot start and VRD safety.',
+      specs: '1/2 Phase, Black Casing',
+    },
+    {
+      id: 'def-mma-yellow-grey',
+      title: 'mma_yellow_grey',
+      category: 'machines',
+      image: mmaYellowGrey,
+      brand: 'MKG',
+      description: 'Heavy duty wide voltage professional arc welder in custom yellow-grey dual color casing.',
+      specs: '1/2/3 Phase, Wide Voltage',
+    },
+    {
+      id: 'def-plasma-cutter',
+      title: 'plasma_cutter',
+      category: 'machines',
+      image: plasmaCutter,
+      brand: 'MKG',
+      description: 'High-speed pilot arc plasma cutter with dross-free clean cutting capability on steel sheets.',
+      specs: '3 Phase, Pilot Arc',
     }
   ];
 
   const [items, setItems] = useState<GalleryItem[]>(() => {
-    const saved = localStorage.getItem('gtc_gallery_items_v2');
+    const saved = localStorage.getItem('gtc_gallery_items_v3');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -63,7 +223,7 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
   });
 
   useEffect(() => {
-    localStorage.setItem('gtc_gallery_items_v2', JSON.stringify(items));
+    localStorage.setItem('gtc_gallery_items_v3', JSON.stringify(items));
   }, [items]);
 
   // 2. Filter & Search State
@@ -182,7 +342,7 @@ export default function GalleryView({ setLightboxImage }: GalleryViewProps) {
   const handleRestoreDefaults = () => {
     if (window.confirm('Are you sure you want to restore the original verified factory photo and remove all custom additions?')) {
       setItems(defaultItems);
-      localStorage.removeItem('gtc_gallery_items_v2');
+      localStorage.removeItem('gtc_gallery_items_v3');
     }
   };
 
