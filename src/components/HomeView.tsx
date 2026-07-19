@@ -16,26 +16,22 @@ interface HomeViewProps {
 }
 
 function BrandCard({ brand }: { brand: typeof BRANDS[0]; key?: string | number }): React.JSX.Element {
-  const [imgFailed, setImgFailed] = React.useState(false);
+  const [imgFailed, setImgFailed] = React.useState(!brand.logo);
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLAnchorElement>) => {
-    if (e.key === 'Enter') {
-      // Allow default click action to open link in new tab
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLDivElement | HTMLAnchorElement>) => {
+    if (e.key === 'Enter' && brand.url) {
+      window.open(brand.url, '_blank', 'noopener,noreferrer');
     }
   };
 
-  return (
-    <a
-      href={brand.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      onKeyDown={handleKeyPress}
-      className="group relative bg-white rounded-2xl p-6 border border-zinc-200/80 hover:border-orange-500 shadow-2xs hover:shadow-lg transition-all duration-300 ease-out flex flex-col justify-between items-center text-center cursor-pointer min-h-[160px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 hover:-translate-y-1.5"
-      id={`brand-card-${brand.name.toLowerCase().replace(/\s+/g, '-')}`}
-      title={`Visit official website of ${brand.name}`}
-    >
+  const cardClasses = `group relative bg-white rounded-2xl p-6 border border-zinc-200/80 hover:border-orange-500 shadow-2xs hover:shadow-lg transition-all duration-300 ease-out flex flex-col justify-between items-center text-center min-h-[160px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 hover:-translate-y-1.5 ${
+    brand.url ? 'cursor-pointer' : 'cursor-default'
+  }`;
+
+  const content = (
+    <>
       <div className="w-full flex-1 flex items-center justify-center min-h-[70px]">
-        {!imgFailed ? (
+        {!imgFailed && brand.logo ? (
           <img
             src={brand.logo}
             alt={`${brand.name} official logo`}
@@ -62,13 +58,43 @@ function BrandCard({ brand }: { brand: typeof BRANDS[0]; key?: string | number }
         )}
       </div>
 
-      {/* External Link Indicator */}
-      <span className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <svg className="w-3.5 h-3.5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-      </span>
-    </a>
+      {/* External Link Indicator (only shown if brand has a URL) */}
+      {brand.url && (
+        <span className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <svg className="w-3.5 h-3.5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </span>
+      )}
+    </>
+  );
+
+  if (brand.url) {
+    return (
+      <a
+        href={brand.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        onKeyDown={handleKeyPress}
+        className={cardClasses}
+        id={`brand-card-${brand.name.toLowerCase().replace(/\s+/g, '-')}`}
+        title={`Visit official website of ${brand.name}`}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <div
+      tabIndex={0}
+      onKeyDown={handleKeyPress}
+      className={cardClasses}
+      id={`brand-card-${brand.name.toLowerCase().replace(/\s+/g, '-')}`}
+      title={`${brand.name}`}
+    >
+      {content}
+    </div>
   );
 }
 

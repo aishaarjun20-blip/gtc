@@ -20,17 +20,17 @@ import mkgMma500sic from './assets/images/mkg_mma_500_sic_1784119233192.jpg';
 import mkgCut140sic from './assets/images/mkg_cut_140_sic_1784119245796.jpg';
 
 export const BRANDS = [
-  { name: 'MKG', logoText: 'MKG', description: 'Premium Inverter Welding & Cutting Systems', url: 'https://mkgweld.com', logo: 'https://logo.clearbit.com/mkgweld.com' },
-  { name: 'BOSCH', logoText: 'BOSCH', description: 'World-Class Power & Hand Tools', url: 'https://www.boschtools.com', logo: 'https://logo.clearbit.com/boschtools.com' },
-  { name: 'ESAB', logoText: 'ESAB', description: 'Global Leaders in Welding Equipment', url: 'https://www.esab.com', logo: 'https://logo.clearbit.com/esab.com' },
-  { name: 'ADOR', logoText: 'ADOR', description: 'Advanced Welding Alloys & Machines', url: 'https://www.adorwelding.com', logo: 'https://logo.clearbit.com/adorwelding.com' },
-  { name: 'SUPERON', logoText: 'SUPERON', description: 'Premium Special Electrodes & Spray products', url: 'https://www.superonindia.com', logo: 'https://logo.clearbit.com/superonindia.com' },
-  { name: 'KARAM', logoText: 'KARAM', description: 'Personal Protective & Fall Safety Equipment', url: 'https://www.karam.in', logo: 'https://logo.clearbit.com/karam.in' },
-  { name: 'L&T EWAC', logoText: 'EWAC', description: 'Specialized Repair & Wear Resistant Welding', url: 'https://www.ewacalloys.com', logo: 'https://logo.clearbit.com/ewacalloys.com' },
-  { name: 'INGCO', logoText: 'INGCO', description: 'High-Quality Affordable Power Tools', url: 'https://ingco.com', logo: 'https://logo.clearbit.com/ingco.com' },
-  { name: 'D & H', logoText: 'D & H', description: 'Welding Electrodes & Filler Wires', url: 'https://www.dnhindia.com', logo: 'https://logo.clearbit.com/dnhindia.com' },
-  { name: 'ASHA', logoText: 'ASHA', description: 'Industrial Safety Products', url: 'https://www.ashaweld.com', logo: 'https://logo.clearbit.com/ashaweld.com' },
-  { name: 'YES', logoText: 'YES', description: 'Inverter Welding Equipment', url: 'https://www.yesweld.com', logo: 'https://logo.clearbit.com/yesweld.com' },
+  { name: 'MKG', logoText: 'MKG', description: 'Premium Inverter Welding & Cutting Systems', url: '', logo: 'https://logo.clearbit.com/mkgweld.com' },
+  { name: 'BOSCH', logoText: 'BOSCH', description: 'World-Class Power & Hand Tools', url: 'https://www.bosch-professional.com/in/en/', logo: 'https://logo.clearbit.com/bosch-professional.com' },
+  { name: 'ESAB', logoText: 'ESAB', description: 'Global Leaders in Welding Equipment', url: 'https://esabindia.com/in/ind_en/', logo: 'https://logo.clearbit.com/esabindia.com' },
+  { name: 'ADOR', logoText: 'ADOR', description: 'Advanced Welding Alloys & Machines', url: 'https://adorwelding.com/', logo: 'https://logo.clearbit.com/adorwelding.com' },
+  { name: 'SUPERON', logoText: 'SUPERON', description: 'Premium Special Electrodes & Spray products', url: 'https://www.superontechnik.com/', logo: 'https://logo.clearbit.com/superontechnik.com' },
+  { name: 'KARAM', logoText: 'KARAM', description: 'Personal Protective & Fall Safety Equipment', url: 'https://www.karam.in/', logo: 'https://logo.clearbit.com/karam.in' },
+  { name: 'L&T EWAC', logoText: 'EWAC', description: 'Specialized Repair & Wear Resistant Welding', url: 'https://www.ewacalloys.com/', logo: 'https://logo.clearbit.com/ewacalloys.com' },
+  { name: 'INGCO', logoText: 'INGCO', description: 'High-Quality Affordable Power Tools', url: 'https://www.ingco.in/', logo: 'https://logo.clearbit.com/ingco.in' },
+  { name: 'D & H', logoText: 'D & H', description: 'Welding Electrodes & Filler Wires', url: 'https://www.dnhsecheron.com/', logo: 'https://logo.clearbit.com/dnhsecheron.com' },
+  { name: 'ASHA', logoText: 'ASHA', description: 'Industrial Safety Products', url: 'https://ashaweld.com/', logo: 'https://logo.clearbit.com/ashaweld.com' },
+  { name: 'EURO WELD', logoText: 'EURO WELD', description: 'Premium Cutting Torches & Accessories', url: 'https://eurotechindustries.in/product/euro-fine-cut-cutting-torch', logo: '' },
   { name: 'CMO', logoText: 'CMO', description: 'Welding Accessories & Spares', url: 'https://www.cmotools.com', logo: 'https://logo.clearbit.com/cmotools.com' }
 ];
 
